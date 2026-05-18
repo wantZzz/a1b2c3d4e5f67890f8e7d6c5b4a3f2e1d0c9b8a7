@@ -1,8 +1,5 @@
 ---
 layout: null
-title: "安全性更新與 CVE 漏洞追蹤"
-description: "本目錄收集所有關於系統安全漏洞檢測、CVE 報告與防禦補丁的說明文件。"
-type: "category_index"
 ---
 <!DOCTYPE html>
 <html lang="zh-Hant">
@@ -11,7 +8,7 @@ type: "category_index"
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{{ page.title }}</title>
     <style>
-        /* 💡 參考附圖 XcodeManager 經典科技藍白配色風格 */
+        /* 參考附圖 XcodeManager 經典科技藍白配色風格 */
         :root {
             --primary-dark: #003366;      /* 深藍主色 */
             --primary-light: #e6f0fa;     /* 淺藍背景 */
@@ -21,7 +18,7 @@ type: "category_index"
             --bg-light: #f7fafc;          /* 網頁底色 */
             --badge-primary-bg: #1a56db;  /* 主要標籤背景 */
             --badge-supp-bg: #6b7280;     /* 補充標籤背景 */
-            --accent-red: #d11a2a;        /* 警示紅（如圖中"重要"標籤） */
+            --accent-red: #d11a2a;        /* 警示紅 */
         }
 
         body {
@@ -31,6 +28,29 @@ type: "category_index"
             line-height: 1.6;
             margin: 0;
             padding: 20px;
+        }
+
+        /* ---------------------------------------------------- */
+        /* 平面 UI 圖示庫 (Flat Icon) 基礎設定 */
+        /* ---------------------------------------------------- */
+        .ui-icon {
+            width: 16px;
+            height: 16px;
+            display: inline-block;
+            vertical-align: middle;
+            fill: none;
+            stroke: currentColor;
+            stroke-width: 2;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+            margin-right: 6px;
+            flex-shrink: 0;
+        }
+        .ui-icon-sm {
+            width: 13px;
+            height: 13px;
+            stroke-width: 2.2;
+            margin-right: 4px;
         }
 
         /* 頂部導覽與返回連結 */
@@ -46,6 +66,8 @@ type: "category_index"
             text-decoration: none;
             font-size: 14px;
             font-weight: bold;
+            display: inline-flex;
+            align-items: center;
         }
         .nav-header a:hover {
             text-decoration: underline;
@@ -92,6 +114,10 @@ type: "category_index"
             justify-content: space-between;
             align-items: center;
         }
+        .section-title-text {
+            display: inline-flex;
+            align-items: center;
+        }
 
         /* 列表樣式 */
         .post-list {
@@ -118,6 +144,8 @@ type: "category_index"
         .post-title-area h3 {
             margin: 0;
             font-size: 17px;
+            display: inline-flex;
+            align-items: center;
         }
         .post-title-area h3 a {
             color: var(--primary-dark);
@@ -127,7 +155,7 @@ type: "category_index"
             text-decoration: underline;
         }
 
-        /* 仿圖片中的文字大小與按鈕狀態標籤 */
+        /* 狀態標籤 */
         .badge {
             font-size: 11px;
             font-weight: bold;
@@ -135,6 +163,8 @@ type: "category_index"
             border-radius: 3px;
             color: #ffffff;
             text-transform: uppercase;
+            display: inline-flex;
+            align-items: center;
         }
         .badge-primary {
             background-color: var(--badge-primary-bg);
@@ -146,21 +176,25 @@ type: "category_index"
             font-size: 12px;
             color: var(--text-muted);
             margin-left: auto; /* 將日期推至最右側 */
+            display: inline-flex;
+            align-items: center;
         }
 
         .post-desc {
             color: var(--text-muted);
             font-size: 14px;
             margin: 5px 0 10px 0;
+            padding-left: 24px; /* 對齊標題文字 */
         }
 
-        /* 相關網頁區域（類似流程卡片設計） */
+        /* 相關網頁區域 */
         .related-box {
             background-color: #fcfdfe;
             border: 1px solid var(--border-color);
             border-radius: 3px;
             padding: 10px 15px;
             margin-top: 10px;
+            margin-left: 24px;
         }
         .related-title {
             font-size: 12px;
@@ -169,7 +203,6 @@ type: "category_index"
             margin-bottom: 8px;
             display: flex;
             align-items: center;
-            gap: 5px;
         }
         .related-links {
             display: flex;
@@ -185,6 +218,8 @@ type: "category_index"
             padding: 4px 10px;
             border-radius: 3px;
             font-size: 13px;
+            display: inline-flex;
+            align-items: center;
         }
         .related-item a {
             color: var(--primary-dark);
@@ -204,6 +239,9 @@ type: "category_index"
             text-align: center;
             font-size: 14px;
             margin: 20px 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
     </style>
 </head>
@@ -211,7 +249,11 @@ type: "category_index"
 
     <!-- 頂部導覽列 -->
     <nav class="nav-header">
-        <a href="{{ '/' | relative_url }}">◀ 返回系統主目錄</a>
+        <a href="{{ '/' | relative_url }}">
+            <!-- ◀ 左箭頭平面圖示 -->
+            <svg class="ui-icon" viewBox="0 0 24 24"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
+            返回系統主目錄
+        </a>
     </nav>
 
     <div class="container">
@@ -226,7 +268,6 @@ type: "category_index"
         {% comment %} 
             【依據 Commit 順序排列】
             將目前目錄下的所有網頁，依照 front matter 裡的 'date' 欄位進行降冪排序（最新發布的在最上面）。
-            若日後有建立 GitHub Actions 自動寫入 commit 時間，此處亦可無縫對接。
         {% endcomment %}
         {% assign sorted_pages = site.pages | where_exp: "p", "p.dir == current_dir" | sort: "date" | reverse %}
         
@@ -249,14 +290,20 @@ type: "category_index"
         {% if total_valid_pages == 0 %}
             <!-- 無網頁時的狀態看板提示 -->
             <div class="no-content-alert">
-                ℹ️ 系統提示：此分類目前暫無任何可分享的項目。
+                <!-- 資訊平面圖示 -->
+                <svg class="ui-icon" style="color: var(--accent-red);" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>
+                系統提示：此分類目前暫無任何可分享的項目。
             </div>
         {% else %}
             
             <!-- 1. 主要網頁區塊（按時間最新到最舊排序） -->
             {% if primary_count > 0 %}
                 <div class="section-title">
-                    <span>主要文件清單</span>
+                    <span class="section-title-text">
+                        <!-- 資料夾平面圖示 -->
+                        <svg class="ui-icon" viewBox="0 0 24 24"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path></svg>
+                        主要文件清單
+                    </span>
                     <span style="font-size: 12px; font-weight: normal; color: var(--text-muted);">排序依據：最後更新時間</span>
                 </div>
                 
@@ -266,10 +313,18 @@ type: "category_index"
                             <li class="post-item">
                                 <div class="post-title-area">
                                     <span class="badge badge-primary">主要</span>
-                                    <h3><a href="{{ p.url | relative_url }}">{{ p.title }}</a></h3>
+                                    <h3>
+                                        <!-- 文件平面圖示 -->
+                                        <svg class="ui-icon" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
+                                        <a href="{{ p.url | relative_url }}">{{ p.title }}</a>
+                                    </h3>
                                     
                                     {% if p.date %}
-                                        <span class="post-date">更新時間: {{ p.date | date: "%Y-%m-%d" }}</span>
+                                        <span class="post-date">
+                                            <!-- 日曆平面圖示 -->
+                                            <svg class="ui-icon ui-icon-sm" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
+                                            更新時間: {{ p.date | date: "%Y-%m-%d" }}
+                                        </span>
                                     {% endif %}
                                 </div>
                                 
@@ -281,7 +336,9 @@ type: "category_index"
                                 {% if p.related %}
                                     <div class="related-box">
                                         <div class="related-title">
-                                            <span>🔗 相關參考文件：</span>
+                                            <!-- 連結平面圖示 -->
+                                            <svg class="ui-icon ui-icon-sm" viewBox="0 0 24 24"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg>
+                                            相關參考文件
                                         </div>
                                         <ul class="related-links">
                                             {% for r_filename in p.related %}
@@ -289,7 +346,7 @@ type: "category_index"
                                                     {% if target.name == r_filename %}
                                                         <li class="related-item">
                                                             <a href="{{ target.url | relative_url }}">{{ target.title }}</a>
-                                                            <span style="font-size: 11px; color: var(--text-muted);">
+                                                            <span style="font-size: 11px; color: var(--text-muted); margin-left: 4px;">
                                                                 ({% if target.role == "supplementary" %}補充{% else %}主文{% endif %})
                                                             </span>
                                                         </li>
@@ -308,7 +365,11 @@ type: "category_index"
             <!-- 2. 補充網頁區塊（同樣按時間最新到最舊排序） -->
             {% if supplementary_count > 0 %}
                 <div class="section-title">
-                    <span>補充資料與附錄</span>
+                    <span class="section-title-text">
+                        <!-- 圖書平面圖示 -->
+                        <svg class="ui-icon" viewBox="0 0 24 24"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path></svg>
+                        補充資料與附錄
+                    </span>
                 </div>
                 
                 <ul class="post-list">
@@ -317,10 +378,18 @@ type: "category_index"
                             <li class="post-item">
                                 <div class="post-title-area">
                                     <span class="badge badge-supplementary">補充</span>
-                                    <h3><a href="{{ p.url | relative_url }}">{{ p.title }}</a></h3>
+                                    <h3>
+                                        <!-- 文件平面圖示 -->
+                                        <svg class="ui-icon" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
+                                        <a href="{{ p.url | relative_url }}">{{ p.title }}</a>
+                                    </h3>
                                     
                                     {% if p.date %}
-                                        <span class="post-date">發布時間: {{ p.date | date: "%Y-%m-%d" }}</span>
+                                        <span class="post-date">
+                                            <!-- 日曆平面圖示 -->
+                                            <svg class="ui-icon ui-icon-sm" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
+                                            發布時間: {{ p.date | date: "%Y-%m-%d" }}
+                                        </span>
                                     {% endif %}
                                 </div>
                                 <div class="post-desc">
