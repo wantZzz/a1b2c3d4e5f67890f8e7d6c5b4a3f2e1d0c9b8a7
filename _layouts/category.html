@@ -1,0 +1,339 @@
+---
+layout: null
+title: "安全性更新與 CVE 漏洞追蹤"
+description: "本目錄收集所有關於系統安全漏洞檢測、CVE 報告與防禦補丁的說明文件。"
+type: "category_index"
+---
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ page.title }}</title>
+    <style>
+        /* 💡 參考附圖 XcodeManager 經典科技藍白配色風格 */
+        :root {
+            --primary-dark: #003366;      /* 深藍主色 */
+            --primary-light: #e6f0fa;     /* 淺藍背景 */
+            --border-color: #b0c8e0;      /* 藍灰色邊框 */
+            --text-main: #333333;         /* 主要文字 */
+            --text-muted: #666666;        /* 次要文字 */
+            --bg-light: #f7fafc;          /* 網頁底色 */
+            --badge-primary-bg: #1a56db;  /* 主要標籤背景 */
+            --badge-supp-bg: #6b7280;     /* 補充標籤背景 */
+            --accent-red: #d11a2a;        /* 警示紅（如圖中"重要"標籤） */
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            background-color: var(--bg-light);
+            color: var(--text-main);
+            line-height: 1.6;
+            margin: 0;
+            padding: 20px;
+        }
+
+        /* 頂部導覽與返回連結 */
+        .nav-header {
+            background-color: var(--primary-dark);
+            padding: 10px 20px;
+            margin: -20px -20px 20px -20px;
+            display: flex;
+            align-items: center;
+        }
+        .nav-header a {
+            color: #ffffff;
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: bold;
+        }
+        .nav-header a:hover {
+            text-decoration: underline;
+        }
+
+        /* 主容器外框 */
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            background: #ffffff;
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+            padding: 25px;
+        }
+
+        /* 標題區 */
+        .page-header {
+            border-bottom: 2px solid var(--primary-dark);
+            padding-bottom: 15px;
+            margin-bottom: 25px;
+        }
+        .page-header h1 {
+            color: var(--primary-dark);
+            margin: 0 0 10px 0;
+            font-size: 24px;
+        }
+        .page-header p {
+            color: var(--text-muted);
+            margin: 0;
+            font-size: 14px;
+        }
+
+        /* 區塊標題 */
+        .section-title {
+            background-color: var(--primary-light);
+            border-left: 4px solid var(--primary-dark);
+            padding: 8px 12px;
+            color: var(--primary-dark);
+            font-size: 16px;
+            font-weight: bold;
+            margin: 30px 0 15px 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        /* 列表樣式 */
+        .post-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+        .post-item {
+            padding: 15px 10px;
+            border-bottom: 1px dashed var(--border-color);
+            position: relative;
+        }
+        .post-item:last-child {
+            border-bottom: none;
+        }
+
+        /* 標題與標籤排版 */
+        .post-title-area {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 6px;
+        }
+        .post-title-area h3 {
+            margin: 0;
+            font-size: 17px;
+        }
+        .post-title-area h3 a {
+            color: var(--primary-dark);
+            text-decoration: none;
+        }
+        .post-title-area h3 a:hover {
+            text-decoration: underline;
+        }
+
+        /* 仿圖片中的文字大小與按鈕狀態標籤 */
+        .badge {
+            font-size: 11px;
+            font-weight: bold;
+            padding: 2px 8px;
+            border-radius: 3px;
+            color: #ffffff;
+            text-transform: uppercase;
+        }
+        .badge-primary {
+            background-color: var(--badge-primary-bg);
+        }
+        .badge-supplementary {
+            background-color: var(--badge-supp-bg);
+        }
+        .post-date {
+            font-size: 12px;
+            color: var(--text-muted);
+            margin-left: auto; /* 將日期推至最右側 */
+        }
+
+        .post-desc {
+            color: var(--text-muted);
+            font-size: 14px;
+            margin: 5px 0 10px 0;
+        }
+
+        /* 相關網頁區域（類似流程卡片設計） */
+        .related-box {
+            background-color: #fcfdfe;
+            border: 1px solid var(--border-color);
+            border-radius: 3px;
+            padding: 10px 15px;
+            margin-top: 10px;
+        }
+        .related-title {
+            font-size: 12px;
+            font-weight: bold;
+            color: var(--primary-dark);
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        .related-links {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            padding: 0;
+            margin: 0;
+            list-style: none;
+        }
+        .related-item {
+            background-color: #ffffff;
+            border: 1px solid #ccdbee;
+            padding: 4px 10px;
+            border-radius: 3px;
+            font-size: 13px;
+        }
+        .related-item a {
+            color: var(--primary-dark);
+            text-decoration: none;
+        }
+        .related-item a:hover {
+            text-decoration: underline;
+        }
+
+        /* 查無內容提示 */
+        .no-content-alert {
+            background-color: #fff8f8;
+            border: 1px solid #f5c2c2;
+            color: var(--accent-red);
+            padding: 15px;
+            border-radius: 4px;
+            text-align: center;
+            font-size: 14px;
+            margin: 20px 0;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- 頂部導覽列 -->
+    <nav class="nav-header">
+        <a href="{{ '/' | relative_url }}">◀ 返回系統主目錄</a>
+    </nav>
+
+    <div class="container">
+        <!-- 分類標頭 -->
+        <header class="page-header">
+            <h1>{{ page.title }}</h1>
+            <p>{{ page.description }}</p>
+        </header>
+
+        {% assign current_dir = page.dir %}
+        
+        {% comment %} 
+            【依據 Commit 順序排列】
+            將目前目錄下的所有網頁，依照 front matter 裡的 'date' 欄位進行降冪排序（最新發布的在最上面）。
+            若日後有建立 GitHub Actions 自動寫入 commit 時間，此處亦可無縫對接。
+        {% endcomment %}
+        {% assign sorted_pages = site.pages | where_exp: "p", "p.dir == current_dir" | sort: "date" | reverse %}
+        
+        {% comment %} 計算主要與補充的數量 {% endcomment %}
+        {% assign primary_count = 0 %}
+        {% assign supplementary_count = 0 %}
+        
+        {% for p in sorted_pages %}
+            {% if p.url != page.url %}
+                {% if p.role == "primary" %}
+                    {% assign primary_count = primary_count | plus: 1 %}
+                {% elsif p.role == "supplementary" %}
+                    {% assign supplementary_count = supplementary_count | plus: 1 %}
+                {% endif %}
+            {% endif %}
+        {% endfor %}
+        
+        {% assign total_valid_pages = primary_count | plus: supplementary_count %}
+
+        {% if total_valid_pages == 0 %}
+            <!-- 無網頁時的狀態看板提示 -->
+            <div class="no-content-alert">
+                ℹ️ 系統提示：此分類目前暫無任何可分享的項目。
+            </div>
+        {% else %}
+            
+            <!-- 1. 主要網頁區塊（按時間最新到最舊排序） -->
+            {% if primary_count > 0 %}
+                <div class="section-title">
+                    <span>主要文件清單</span>
+                    <span style="font-size: 12px; font-weight: normal; color: var(--text-muted);">排序依據：最後更新時間</span>
+                </div>
+                
+                <ul class="post-list">
+                    {% for p in sorted_pages %}
+                        {% if p.role == "primary" and p.url != page.url %}
+                            <li class="post-item">
+                                <div class="post-title-area">
+                                    <span class="badge badge-primary">主要</span>
+                                    <h3><a href="{{ p.url | relative_url }}">{{ p.title }}</a></h3>
+                                    
+                                    {% if p.date %}
+                                        <span class="post-date">更新時間: {{ p.date | date: "%Y-%m-%d" }}</span>
+                                    {% endif %}
+                                </div>
+                                
+                                <div class="post-desc">
+                                    {{ p.description }}
+                                </div>
+                                
+                                <!-- 關聯網頁區（單向相關，被關聯者不反向顯示） -->
+                                {% if p.related %}
+                                    <div class="related-box">
+                                        <div class="related-title">
+                                            <span>🔗 相關參考文件：</span>
+                                        </div>
+                                        <ul class="related-links">
+                                            {% for r_filename in p.related %}
+                                                {% for target in sorted_pages %}
+                                                    {% if target.name == r_filename %}
+                                                        <li class="related-item">
+                                                            <a href="{{ target.url | relative_url }}">{{ target.title }}</a>
+                                                            <span style="font-size: 11px; color: var(--text-muted);">
+                                                                ({% if target.role == "supplementary" %}補充{% else %}主文{% endif %})
+                                                            </span>
+                                                        </li>
+                                                    {% endif %}
+                                                {% endfor %}
+                                            {% endfor %}
+                                        </ul>
+                                    </div>
+                                {% endif %}
+                            </li>
+                        {% endif %}
+                    {% endfor %}
+                </ul>
+            {% endif %}
+
+            <!-- 2. 補充網頁區塊（同樣按時間最新到最舊排序） -->
+            {% if supplementary_count > 0 %}
+                <div class="section-title">
+                    <span>補充資料與附錄</span>
+                </div>
+                
+                <ul class="post-list">
+                    {% for p in sorted_pages %}
+                        {% if p.role == "supplementary" and p.url != page.url %}
+                            <li class="post-item">
+                                <div class="post-title-area">
+                                    <span class="badge badge-supplementary">補充</span>
+                                    <h3><a href="{{ p.url | relative_url }}">{{ p.title }}</a></h3>
+                                    
+                                    {% if p.date %}
+                                        <span class="post-date">發布時間: {{ p.date | date: "%Y-%m-%d" }}</span>
+                                    {% endif %}
+                                </div>
+                                <div class="post-desc">
+                                    {{ p.description }}
+                                </div>
+                            </li>
+                        {% endif %}
+                    {% endfor %}
+                </ul>
+            {% endif %}
+
+        {% endif %}
+    </div>
+
+</body>
+</html>
