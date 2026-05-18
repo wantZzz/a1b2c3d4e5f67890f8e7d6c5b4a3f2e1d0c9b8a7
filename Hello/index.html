@@ -13,7 +13,7 @@ type: "category_index"
 <body>
 
     <!-- 返回主目錄的連結 -->
-    <p><a href="../index.html">← 返回主目錄</a></p>
+    <p><a href="{{ '/' | relative_url }}">← 返回主目錄</a></p>
 
     <h1>分類目錄頁</h1>
 
@@ -27,7 +27,7 @@ type: "category_index"
             {% if p.role == "primary" and p.url != page.url %}
                 <li>
                     <!-- 顯示主要網頁的標題與連結 -->
-                    <h3><a href="{{ p.url }}">{{ p.title }}</a></h3>
+                    <h3><a href="{{ p.url | relative_url }}">{{ p.title }}</a></h3>
                     <!-- 顯示簡介 -->
                     <p>{{ p.description }}</p>
                     
@@ -42,7 +42,7 @@ type: "category_index"
                                     {% endcomment %}
                                     {% if target.name == r_filename %}
                                         <li>
-                                            <a href="{{ target.url }}">{{ target.title }}</a> 
+                                            <a href="{{ target.url | relative_url }}">{{ target.title }}</a> 
                                             {% if target.role == "supplementary" %}(補充){% endif %}
                                         </li>
                                     {% endif %}
@@ -62,7 +62,7 @@ type: "category_index"
         {% for p in all_pages %}
             {% if p.role == "supplementary" and p.url != page.url %}
                 <li>
-                    <strong><a href="{{ p.url }}">{{ p.title }}</a></strong>
+                    <strong><a href="{{ p.url | relative_url }}">{{ p.title }}</a></strong>
                     <p>{{ p.description }}</p>
                 </li>
             {% endif %}

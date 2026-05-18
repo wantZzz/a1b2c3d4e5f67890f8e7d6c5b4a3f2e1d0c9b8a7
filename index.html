@@ -22,7 +22,7 @@ layout: null
             {% if p.type == "category_index" and p.url != page.url %}
                 <li style="margin-bottom: 20px;">
                     <!-- 顯示子目錄的標題與超連結 -->
-                    <h3><a href="{{ p.url }}">{{ p.title }}</a></h3>
+                    <h3><a href="{{ p.url | relative_url }}">{{ p.title }}</a></h3>
                     
                     <!-- 顯示子目錄的簡介描述 -->
                     {% if p.description %}
