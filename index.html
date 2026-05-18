@@ -1,0 +1,39 @@
+---
+layout: null
+---
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>網站主目錄</title>
+</head>
+<body>
+
+    <h1>網站主目錄</h1>
+    <p>歡迎造訪本站，以下是目前所有資料夾分類的目錄指引：</p>
+    
+    <hr>
+
+    <ul>
+        {% for p in site.pages %}
+            {% comment %} 
+                篩選出設定為 category_index 的頁面，並排除主目錄本身 
+            {% endcomment %}
+            {% if p.type == "category_index" and p.url != page.url %}
+                <li style="margin-bottom: 20px;">
+                    <!-- 顯示子目錄的標題與超連結 -->
+                    <h3><a href="{{ p.url }}">{{ p.title }}</a></h3>
+                    
+                    <!-- 顯示子目錄的簡介描述 -->
+                    {% if p.description %}
+                        <p>{{ p.description }}</p>
+                    {% else %}
+                        <p><em>此分類暫無描述。</em></p>
+                    {% endif %}
+                </li>
+            {% endif %}
+        {% endfor %}
+    </ul>
+
+</body>
+</html>

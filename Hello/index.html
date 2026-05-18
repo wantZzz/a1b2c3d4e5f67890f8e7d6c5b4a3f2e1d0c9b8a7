@@ -1,0 +1,73 @@
+---
+layout: null
+title: "Hello"
+description: "全都沒有"
+type: "category_index"
+---
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>分類目錄</title>
+</head>
+<body>
+
+    <!-- 返回主目錄的連結 -->
+    <p><a href="../index.html">← 返回主目錄</a></p>
+
+    <h1>分類目錄頁</h1>
+
+    <!-- 1. 主要網頁區塊 -->
+    <h2>主要內容</h2>
+    <ul>
+        {% assign current_dir = page.dir %}
+        {% assign all_pages = site.pages | where_exp: "p", "p.dir == current_dir" %}
+        
+        {% for p in all_pages %}
+            {% if p.role == "primary" and p.url != page.url %}
+                <li>
+                    <!-- 顯示主要網頁的標題與連結 -->
+                    <h3><a href="{{ p.url }}">{{ p.title }}</a></h3>
+                    <!-- 顯示簡介 -->
+                    <p>{{ p.description }}</p>
+                    
+                    <!-- 判斷是否有設定相關網頁 -->
+                    {% if p.related %}
+                        <p><strong>相關網頁：</strong></p>
+                        <ul>
+                            {% for r_filename in p.related %}
+                                {% for target in all_pages %}
+                                    {% comment %} 
+                                        透過比對檔案名稱 (name)，自動找出對應的網頁資訊
+                                    {% endcomment %}
+                                    {% if target.name == r_filename %}
+                                        <li>
+                                            <a href="{{ target.url }}">{{ target.title }}</a> 
+                                            {% if target.role == "supplementary" %}(補充){% endif %}
+                                        </li>
+                                    {% endif %}
+                                {% endfor %}
+                            {% endfor %}
+                        </ul>
+                    {% endif %}
+                </li>
+                <hr>
+            {% endif %}
+        {% endfor %}
+    </ul>
+
+    <!-- 2. 補充網頁區塊 -->
+    <h2>補充資料</h2>
+    <ul>
+        {% for p in all_pages %}
+            {% if p.role == "supplementary" and p.url != page.url %}
+                <li>
+                    <strong><a href="{{ p.url }}">{{ p.title }}</a></strong>
+                    <p>{{ p.description }}</p>
+                </li>
+            {% endif %}
+        {% endfor %}
+    </ul>
+
+</body>
+</html>

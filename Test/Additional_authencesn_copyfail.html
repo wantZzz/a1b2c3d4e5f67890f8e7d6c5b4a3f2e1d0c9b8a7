@@ -1,0 +1,300 @@
+---
+layout: null
+title: "authencesn 越界寫入"
+description: "展示 IPsec ESN 在 HMAC 重排時如何跳出邊界污染 Page Cache"
+role: "supplementary"
+related: []
+---
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>authencesn AEAD 記憶體越界寫入演示</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;600&family=Inter:wght@400;600;700&display=swap');
+        
+        body { font-family: 'Inter', sans-serif; background-color: #0f172a; color: #e2e8f0; overflow-x: hidden; }
+        .code-font { font-family: 'Fira Code', monospace; }
+        
+        .memory-cell {
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+        }
+        
+        /* 基礎高亮 */
+        .memory-cell.highlight {
+            transform: scale(1.1);
+            box-shadow: 0 0 20px rgba(59, 130, 246, 0.5);
+            z-index: 10;
+            border-color: #fff !important;
+        }
+        
+        /* 正常掃描：鮮藍色呼吸 */
+        .memory-cell.scanning {
+            background-color: #3b82f6 !important;
+            border-color: #93c5fd !important;
+            z-index: 50;
+            animation: scan-pulse 0.4s ease-in-out infinite alternate;
+        }
+        
+        /* 污染狀態：紅色脈衝 */
+        .memory-cell.corrupted {
+            background-color: #ef4444 !important;
+            border-color: #f87171 !important;
+            color: white !important;
+            animation: pulse-red 1.5s infinite;
+        }
+
+        /* 關鍵修復：當同時處於污染且被掃描時，呈現紫色警告呼吸感 */
+        .memory-cell.corrupted.scanning {
+            background-color: #a855f7 !important; /* 紫色代表 紅+藍 混合 */
+            border-color: #e9d5ff !important;
+            z-index: 60;
+            animation: scan-pulse-warning 0.3s ease-in-out infinite alternate;
+        }
+        
+        /* 數值顏色 */
+        .val-hi { color: #22d3ee; font-weight: 800; }
+        .val-l0 { color: #fbbf24; font-weight: 800; }
+        .val-norm { color: #94a3b8; }
+
+        @keyframes scan-pulse {
+            0% { transform: scale(1.1); box-shadow: 0 0 15px rgba(59, 130, 246, 0.8); }
+            100% { transform: scale(1.3); box-shadow: 0 0 35px rgba(96, 165, 250, 1), 0 0 50px rgba(59, 130, 246, 0.5); }
+        }
+
+        /* 受損區塊掃描時的更劇烈動畫 */
+        @keyframes scan-pulse-warning {
+            0% { transform: scale(1.2); box-shadow: 0 0 20px rgba(168, 85, 247, 0.8); }
+            100% { transform: scale(1.5); box-shadow: 0 0 40px rgba(192, 132, 252, 1), 0 0 60px rgba(239, 68, 68, 0.6); }
+        }
+
+        @keyframes pulse-red {
+            0% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7); }
+            70% { box-shadow: 0 0 0 12px rgba(239, 68, 68, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); }
+        }
+
+        .custom-scrollbar::-webkit-scrollbar { width: 4px; }
+        .custom-scrollbar::-webkit-scrollbar-track { background: #1e293b; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: #475569; border-radius: 10px; }
+    </style>
+</head>
+<body class="p-4 md:p-8">
+    <div class="max-w-5xl mx-auto">
+        <header class="mb-8 text-center">
+            <h1 class="text-3xl font-bold text-blue-400 mb-2 tracking-tight">authencesn 越界寫入模擬</h1>
+            <p class="text-slate-400">展示 IPsec ESN 在 HMAC 重排時如何跳出邊界污染 Page Cache</p>
+        </header>
+
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            <div class="lg:col-span-2 space-y-6">
+                <div class="bg-slate-800 p-6 rounded-2xl border border-slate-700 shadow-2xl">
+                    <div class="flex justify-between items-center mb-6">
+                        <h2 class="text-lg font-semibold flex items-center">
+                            <i class="fas fa-memory mr-2 text-blue-400"></i> 目的地緩衝區 (dst) 佈局
+                        </h2>
+                        <span id="step-counter" class="bg-blue-600 px-4 py-1 rounded-full text-xs font-bold uppercase tracking-widest shadow-lg">Step 0: Initial</span>
+                    </div>
+
+                    <div class="flex flex-wrap gap-2 p-6 bg-slate-950 rounded-xl border border-slate-800 overflow-hidden relative" id="memory-container"></div>
+
+                    <div class="mt-8 grid grid-cols-2 md:grid-cols-4 gap-4 text-[11px] font-semibold text-slate-400 uppercase tracking-wider">
+                        <div class="flex items-center"><span class="w-3 h-3 bg-slate-700 border border-slate-500 rounded mr-2"></span> AAD (0-7)</div>
+                        <div class="flex items-center"><span class="w-3 h-3 bg-blue-900 border border-blue-700 rounded mr-2"></span> Plaintext</div>
+                        <div class="flex items-center"><span class="w-3 h-3 bg-indigo-900 border border-indigo-700 rounded mr-2"></span> AEAD Tag</div>
+                        <div class="flex items-center"><span class="w-3 h-3 bg-emerald-900 border border-emerald-700 rounded mr-2"></span> Page Cache</div>
+                    </div>
+                </div>
+
+                <div class="bg-slate-800 p-6 rounded-2xl border border-slate-700">
+                    <h3 class="text-xs font-black text-slate-500 uppercase mb-4 tracking-[0.2em]">Kernel Execution Trace</h3>
+                    <div class="code-font text-sm p-5 bg-slate-900 rounded-xl border-l-4 border-blue-500 overflow-hidden" id="code-display">
+                        <div class="text-slate-600 italic">// 準備就緒，請按「下一步」開始...</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="space-y-6">
+                <div class="bg-slate-800 p-6 rounded-2xl border border-slate-700 shadow-xl">
+                    <h3 class="text-xs font-black text-slate-500 uppercase mb-4 tracking-[0.2em]">內部暫存器 (tmp)</h3>
+                    <div class="grid grid-cols-2 gap-4">
+                        <div class="bg-slate-900 p-4 rounded-xl border border-slate-700 text-center shadow-inner">
+                            <div class="text-[10px] text-slate-500 mb-2 font-bold uppercase">tmp[0] (High)</div>
+                            <div id="tmp-0" class="code-font text-2xl font-bold text-cyan-400 tracking-tighter">--</div>
+                        </div>
+                        <div class="bg-slate-900 p-4 rounded-xl border border-slate-700 text-center shadow-inner">
+                            <div class="text-[10px] text-slate-500 mb-2 font-bold uppercase">tmp[1] (Low)</div>
+                            <div id="tmp-1" class="code-font text-2xl font-bold text-amber-400 tracking-tighter">--</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-slate-800 p-6 rounded-2xl border border-slate-700 h-[280px] flex flex-col shadow-xl">
+                    <h3 class="text-xs font-black text-slate-500 uppercase mb-4 tracking-[0.2em]">操作分析日誌</h3>
+                    <div id="log-container" class="text-sm space-y-3 overflow-y-auto flex-1 pr-2 custom-scrollbar">
+                        <p class="text-blue-400">系統就緒。IPsec 正在處理傳入的加密封包...</p>
+                    </div>
+                </div>
+
+                <div class="flex gap-3">
+                    <button id="btn-next" class="flex-1 bg-blue-600 hover:bg-blue-500 active:scale-95 text-white py-4 rounded-xl font-bold transition shadow-lg shadow-blue-900/20 disabled:opacity-50 disabled:cursor-wait">下一步 <i class="fas fa-chevron-right ml-2"></i></button>
+                    <button id="btn-reset" class="bg-slate-700 hover:bg-slate-600 active:scale-95 text-white px-5 rounded-xl transition border border-slate-600 shadow-lg"><i class="fas fa-sync-alt"></i></button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const MEM_SIZE = 36;
+        const ASSOC_LEN = 8;
+        const DATA_LEN = 16;
+        const TAG_LEN = 8;
+        const PAGE_CACHE_START = 24;
+
+        const VAL_HI = "HI";
+        const VAL_L0 = "L0";
+        const VAL_FILE = "FF";
+
+        let currentStep = 0;
+        let memory = [];
+        let tmp = ["--", "--"];
+        let isAnimating = false;
+
+        function initMemory() {
+            memory = [];
+            for (let i = 0; i < MEM_SIZE; i++) {
+                let val = "00", type = "data";
+                if (i < ASSOC_LEN) { type = "aad"; val = (i >= 4) ? VAL_L0 : VAL_HI; }
+                else if (i < ASSOC_LEN + DATA_LEN) { type = "plaintext"; val = "DD"; }
+                else if (i < ASSOC_LEN + DATA_LEN + TAG_LEN) { type = "tag"; val = "TT"; }
+                else { type = "pagecache"; val = VAL_FILE; }
+                memory.push({ val, type, corrupted: false });
+            }
+            tmp = ["--", "--"];
+        }
+
+        function renderMemory() {
+            const container = document.getElementById('memory-container');
+            container.innerHTML = '';
+            memory.forEach((cell, i) => {
+                const div = document.createElement('div');
+                div.className = `memory-cell w-10 h-10 flex items-center justify-center text-[11px] font-bold rounded-lg border code-font shadow-sm `;
+                if (cell.type === 'aad') div.classList.add('bg-slate-700', 'border-slate-500');
+                else if (cell.type === 'plaintext') div.classList.add('bg-blue-900', 'border-blue-700');
+                else if (cell.type === 'tag') div.classList.add('bg-indigo-900', 'border-indigo-700');
+                else div.classList.add('bg-emerald-900', 'border-emerald-700');
+                if (cell.corrupted) div.classList.add('corrupted');
+                
+                let valClass = cell.val === VAL_HI ? "val-hi" : (cell.val === VAL_L0 ? "val-l0" : "val-norm");
+                div.innerHTML = `<span class="${valClass}">${cell.val}</span>`;
+                div.id = `mem-${i}`;
+                container.appendChild(div);
+            });
+            document.getElementById('tmp-0').innerText = tmp[0];
+            document.getElementById('tmp-1').innerText = tmp[1];
+        }
+
+        async function runScanAnimation(start, end) {
+            isAnimating = true;
+            document.getElementById('btn-next').disabled = true;
+            for (let i = start; i <= end; i++) {
+                const el = document.getElementById(`mem-${i}`);
+                if (el) {
+                    el.classList.add('scanning');
+                    await new Promise(r => setTimeout(r, 100)); // 稍微變慢以呈現呼吸感
+                    el.classList.remove('scanning');
+                }
+            }
+            isAnimating = false;
+            document.getElementById('btn-next').disabled = false;
+        }
+
+        const steps = [
+            {
+                title: "初始狀態",
+                code: "// IPsec 要求 authencesn 解密\n// AAD 區塊包含 64-bit 序列號 (HI + L0)",
+                log: "接收到解密請求。AAD (Offset 0-7) 預設存放了 HI 與 L0。",
+                action: () => { initMemory(); }
+            },
+            {
+                title: "Step 1: 備份序列號",
+                code: "scatterwalk_map_and_copy(tmp, dst, 0, 8, 0);",
+                log: "讀取 AAD 的 8 個位元組。內核暫存器 tmp 現在持有 HI 與 L0 的備份。",
+                action: () => { highlightCells(0, 7); tmp[0] = VAL_HI; tmp[1] = VAL_L0; }
+            },
+            {
+                title: "Step 2: 覆寫 AAD (合法)",
+                code: "scatterwalk_map_and_copy(tmp, dst, 4, 4, 1);",
+                log: "為了 HMAC 計算，將 HI 寫入 AAD 的後半部。這在緩衝區邊界內。",
+                action: () => { highlightCells(4, 7); for(let i=4; i<=7; i++) memory[i].val = VAL_HI; }
+            },
+            {
+                title: "Step 3: 越界寫入！ (致命)",
+                code: "scatterwalk_map_and_copy(tmp + 1, dst, 28, 4, 1);",
+                log: "致命錯誤：嘗試將 L0 寫在 Tag 之後。這改寫了 認證碼 即 Page Cache 中的檔案內容！",
+                action: () => {
+                    highlightCells(PAGE_CACHE_START, PAGE_CACHE_START + 3);
+                    for(let i=PAGE_CACHE_START; i < PAGE_CACHE_START + 4; i++) {
+                        memory[i].val = VAL_L0;
+                        memory[i].corrupted = true;
+                    }
+                }
+            },
+            {
+                title: "Step 4: 認證與掃描",
+                code: "hmac_verify(dst + 4, 28); // 掃描 AAD[4:] 到 Tag\nif (auth_failed) return -EBADMSG;",
+                log: "HMAC 引擎開始掃描。依序掃描 ADD高位、密文、ADD低位 ，本次模擬 HMAC 認證失敗的處理",
+                action: async () => {
+                    highlightCells(-1, -1);
+                    await runScanAnimation(4, 27);
+                    const container = document.getElementById('memory-container');
+                    container.classList.add('ring-4', 'ring-red-600', 'ring-opacity-60');
+                    setTimeout(() => container.classList.remove('ring-4'), 800);
+                }
+            },
+            {
+                title: "Step 5: 清理不全",
+                code: "decrypt_tail(): Restore AAD...\n// 沒處理越界位置！",
+                log: "清理函式還原了 AAD，但留在 認證碼 中的 L0 污染依然存在，導致越界寫入(解密時不需要認證碼)。",
+                action: () => { for(let i=4; i<=7; i++) memory[i].val = VAL_L0; highlightCells(-1, -1); }
+            }
+        ];
+
+        function highlightCells(start, end) {
+            for (let i = 0; i < MEM_SIZE; i++) {
+                const el = document.getElementById(`mem-${i}`);
+                if (el) i >= start && i <= end ? el.classList.add('highlight') : el.classList.remove('highlight');
+            }
+        }
+
+        async function updateUI() {
+            if (isAnimating) return;
+            const step = steps[currentStep];
+            document.getElementById('step-counter').innerText = step.title;
+            document.getElementById('code-display').innerHTML = `<div class="text-blue-400 font-bold mb-2">// ${step.title}</div>` + 
+                step.code.split('\n').map(line => `<div>${line}</div>`).join('');
+            const logEntry = document.createElement('div');
+            logEntry.className = "bg-slate-900/50 p-2 rounded border-l-2 border-blue-500";
+            logEntry.innerHTML = `<span class="text-blue-500 font-bold mr-2">#${currentStep}</span> <span class="text-slate-300">${step.log}</span>`;
+            document.getElementById('log-container').prepend(logEntry);
+            await step.action();
+            renderMemory();
+            if (currentStep === steps.length - 1) {
+                const btn = document.getElementById('btn-next');
+                btn.innerHTML = '完成 <i class="fas fa-check ml-2"></i>';
+                btn.className = btn.className.replace('bg-blue-600', 'bg-emerald-600');
+                btn.disabled = true;
+            }
+        }
+
+        document.getElementById('btn-next').addEventListener('click', () => { if (currentStep < steps.length - 1 && !isAnimating) { currentStep++; updateUI(); } });
+        document.getElementById('btn-reset').addEventListener('click', () => { location.reload(); });
+
+        window.onload = () => { initMemory(); renderMemory(); };
+    </script>
+</body>
+</html>
