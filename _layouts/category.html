@@ -69,7 +69,7 @@ layout: null
             <!-- 系統微幅標記 -->
             <div class="text-slate-400 text-xs font-semibold flex items-center gap-1.5">
                 <i data-lucide="shield-alert" class="w-4 h-4 text-blue-400"></i>
-                <span>wantzzz/KnowledgeHTMLAnimation/ {{ page.title | default: "目錄索引" }}</span>
+                <span>wantzzz / KnowledgeHTMLAnimation / {{ page.title | default: "目錄索引" }}</span>
             </div>
         </header>
 
@@ -114,19 +114,6 @@ layout: null
                             </ul>
                         </div>
                     </div>
-
-                    <!-- 排序篩選區 
-                    <div class="border-t border-slate-100 pt-2.5">
-                        <h3 class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-1.5 flex items-center gap-1">
-                            <i data-lucide="clock" class="w-3.5 h-3.5"></i> 快速篩選 (按 Commit 版本)
-                        </h3>
-                        <div class="space-y-2">
-                            <select id="sortOrder" onchange="renderContent()" class="w-full text-xs border border-slate-300 rounded px-2 py-1 bg-slate-50 text-slate-700">
-                                <option value="desc">最近一次 Commit (由新到舊)</option>
-                                <option value="asc">最近一次 Commit (由舊到新)</option>
-                            </select>
-                        </div>
-                    </div> -->
                 </div>
             </aside>
 
@@ -234,7 +221,6 @@ layout: null
 
         // 透過 Liquid 遍歷 site.pages 動態生成同一目錄下的網頁清單
         // 注意：依照規定 Front Matter 僅含 title, description, role, related。
-        // commit_version 預設為 0，並於後續透過獨立的函式另外抓取。
         const allPagesData = [];
         
         {% for p in site.pages %}
@@ -246,8 +232,7 @@ layout: null
                 title: {{ p.title | default: p.name | jsonify }},
                 description: {{ p.description | default: '尚無描述資訊。' | jsonify }},
                 role: {{ p.role | default: 'primary' | jsonify }},
-                related: {% if p.related %}{{ p.related | jsonify }}{% else %}[]{% endif %},
-                commit_version: 0 // 預設為 0，等待額外抓取
+                related: {% if p.related %}{{ p.related | jsonify }}{% else %}[]{% endif %}
             });
             {% endif %}
         {% endfor %}
@@ -318,7 +303,11 @@ layout: null
             // 渲染最近子目錄
             const subdir = getCookie("recent_subdir") || "/";
             document.getElementById("recent-subdir-path").innerText = subdir;
-			document.getElementById("recent-subdir-box").href = subdir;
+            
+            // 修正連結：補上 site.baseurl 以支援 GitHub Pages 專案層級目錄 (例如 /project-name/subdir/)
+            let fullSubdirUrl = siteBaseUrl + (subdir.startsWith('/') ? subdir : '/' + subdir);
+            fullSubdirUrl = fullSubdirUrl.replace(/\/\//g, '/'); // 避免出現雙斜線
+            document.getElementById("recent-subdir-box").href = fullSubdirUrl;
 
             // 渲染最近頁面清單
             const listContainer = document.getElementById("recent-pages-list");
@@ -419,8 +408,6 @@ layout: null
         }
 
         function renderContent() {
-            const sortOrder = document.getElementById('sortOrder').value;
-
             // 更新頁籤按鈕樣式
             const tabs = ['all', 'primary', 'supplementary'];
             tabs.forEach(t => {
@@ -444,15 +431,6 @@ layout: null
                 filteredPages = allPagesData.filter(p => p.role === "supplementary");
                 document.getElementById('main-panel-title').innerText = "補充資料 (Supplementary)";
             }
-
-            // 排序
-            filteredPages.sort((a, b) => {
-                if (sortOrder === 'desc') {
-                    return b.commit_version - a.commit_version;
-                } else {
-                    return a.commit_version - b.commit_version;
-                }
-            });
 
             // 渲染主面板清單
             const primaryListContainer = document.getElementById('primary-list');
@@ -532,10 +510,6 @@ layout: null
                             <span class="text-[9px] bg-slate-100 text-slate-600 px-1.5 py-0.5 rounded border border-slate-200">
                                 檔案：${p.name}
                             </span>
-                            <span class="text-[10px] bg-blue-50 text-blue-700 font-bold px-1.5 py-0.5 rounded border border-blue-200 flex items-center gap-1">
-                                <i data-lucide="git-commit" class="w-3 h-3 text-blue-500"></i>
-                                Commit #${p.commit_version}
-                            </span>
                         </div>
                     </div>
                     <p class="text-[11px] text-slate-600 leading-relaxed">${p.description}</p>
@@ -552,8 +526,7 @@ layout: null
         window.onload = function() {
             initHistoryCookies();
             renderCookiesInSidebar();
-            
-            // 1. 先以預設值 (0) 進行初次渲染
+			
             renderContent(); 
         }
     </script>
