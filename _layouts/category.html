@@ -6,7 +6,7 @@ layout: null
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{{ site.title | default: "多步HTML動畫" }} - {{ page.title | default: "分類目錄頁" }}</title>
+    <title>{{ site.title | default: "wantzzz/KnowledgeHTMLAnimation" }} - {{ page.title | default: "分類目錄頁" }}</title>
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- Lucide Icons (平面圖示庫) -->
@@ -69,7 +69,7 @@ layout: null
             <!-- 系統微幅標記 -->
             <div class="text-slate-400 text-xs font-semibold flex items-center gap-1.5">
                 <i data-lucide="shield-alert" class="w-4 h-4 text-blue-400"></i>
-                <span>/ {{ page.title | default: "目錄索引" }}</span>
+                <span>wantzzz/KnowledgeHTMLAnimation/ {{ page.title | default: "目錄索引" }}</span>
             </div>
         </header>
 
@@ -94,10 +94,10 @@ layout: null
                                 </span>
                                 <button onclick="clearSubdirCookie()" class="text-[9px] text-rose-500 hover:underline">清除</button>
                             </div>
-                            <div id="recent-subdir-box" class="text-xs bg-slate-50 border border-slate-200 rounded p-1.5 text-slate-700 flex items-center justify-between hover:border-blue-400 transition duration-150">
-                                <span class="font-mono truncate text-[11px]" id="recent-subdir-path">{{ page.dir }}</span>
-                                <i data-lucide="chevron-right" class="w-3 h-3 text-slate-400"></i>
-                            </div>
+                            <a id="recent-subdir-box" href="#" class="text-xs bg-slate-50 hover:bg-slate-100 border border-slate-200 rounded p-1.5 text-slate-700 flex items-center justify-between hover:border-blue-400 transition duration-150 group block">
+                                <span class="font-mono truncate text-[11px] group-hover:text-blue-700 transition" id="recent-subdir-path">{{ page.dir }}</span>
+                                <i data-lucide="chevron-right" class="w-3 h-3 text-slate-400 group-hover:text-blue-500 transition"></i>
+                            </a>
                         </div>
 
                         <!-- 2. 最近訪問的三個頁面 -->
@@ -105,7 +105,7 @@ layout: null
                             <div class="text-[10px] font-bold text-slate-400 mb-1 flex items-center justify-between">
                                 <span class="flex items-center gap-1">
                                     <i data-lucide="file-clock" class="w-3.5 h-3.5 text-slate-400"></i>
-                                    最近訪問頁面 (最多3個)
+                                    最近訪問頁面
                                 </span>
                                 <button onclick="clearRecentPagesCookie()" class="text-[9px] text-rose-500 hover:underline">重置</button>
                             </div>
@@ -115,7 +115,7 @@ layout: null
                         </div>
                     </div>
 
-                    <!-- 排序篩選區 -->
+                    <!-- 排序篩選區 
                     <div class="border-t border-slate-100 pt-2.5">
                         <h3 class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-1.5 flex items-center gap-1">
                             <i data-lucide="clock" class="w-3.5 h-3.5"></i> 快速篩選 (按 Commit 版本)
@@ -126,7 +126,7 @@ layout: null
                                 <option value="asc">最近一次 Commit (由舊到新)</option>
                             </select>
                         </div>
-                    </div>
+                    </div> -->
                 </div>
             </aside>
 
@@ -318,6 +318,7 @@ layout: null
             // 渲染最近子目錄
             const subdir = getCookie("recent_subdir") || "/";
             document.getElementById("recent-subdir-path").innerText = subdir;
+			document.getElementById("recent-subdir-box").href = subdir;
 
             // 渲染最近頁面清單
             const listContainer = document.getElementById("recent-pages-list");
@@ -342,14 +343,16 @@ layout: null
 
             recentPages.forEach(p => {
                 const li = document.createElement("li");
-                li.className = "bg-slate-50 hover:bg-slate-100 border border-slate-200 hover:border-slate-300 p-1.5 rounded transition flex flex-col gap-0.5 group";
+                li.className = "bg-slate-50 hover:bg-slate-100 border border-slate-200 hover:border-slate-300 rounded transition group";
                 li.innerHTML = `
-                    <div class="flex items-center justify-between">
-                        <span class="font-bold text-slate-700 truncate block max-w-[170px] group-hover:text-blue-700 transition text-[11px]">
-                            <a href="${p.url}" onclick="trackAndVisitPage('${p.title}', '${p.url}', '${p.name}'); return false;">${p.title}</a>
-                        </span>
-                    </div>
-                    <span class="text-[9px] text-slate-400 font-mono">路徑：${p.name}</span>
+                    <a href="${p.url}" onclick="trackAndVisitPage('${p.title}', '${p.url}', '${p.name}'); return false;" class="flex flex-col gap-0.5 p-1.5 w-full h-full">
+                        <div class="flex items-center justify-between">
+                            <span class="font-bold text-slate-700 truncate block max-w-[170px] group-hover:text-blue-700 transition text-[11px]">
+                                ${p.title}
+                            </span>
+                        </div>
+                        <span class="text-[9px] text-slate-400 font-mono">路徑：${p.name}</span>
+                    </a>
                 `;
                 listContainer.appendChild(li);
             });
@@ -545,27 +548,6 @@ layout: null
             lucide.createIcons();
         }
 
-        // 非同步函數：另外抓取 Commit 資訊 (請替換為您實際的資料來源)
-        async function fetchCommitVersions() {
-            try {
-                // --- 這裡放入您的實際抓取邏輯 ---
-                // 例如透過 AJAX 讀取 CI/CD 產生的 commits.json，或打 GitHub API：
-                // const res = await fetch('/data/commits.json');
-                // const commitData = await res.json();
-                
-                // 目前以模擬邏輯為例，隨機產生版號：
-                allPagesData.forEach(p => {
-                    // p.commit_version = commitData[p.name] || 1;
-                    p.commit_version = Math.floor(Math.random() * 50) + 1; 
-                });
-
-                // 抓取完成後，依據新的 commit_version 再次執行渲染與排序
-                renderContent();
-            } catch (error) {
-                console.error("無法抓取 Commit 資訊:", error);
-            }
-        }
-
         // 當頁面載入完成時執行
         window.onload = function() {
             initHistoryCookies();
@@ -573,9 +555,6 @@ layout: null
             
             // 1. 先以預設值 (0) 進行初次渲染
             renderContent(); 
-            
-            // 2. 觸發另外抓取 Commit 的動作，完成後會自動更新畫面
-            fetchCommitVersions(); 
         }
     </script>
 </body>
