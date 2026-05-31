@@ -220,12 +220,11 @@ type: "category_index"
         <div class="item-grid" id="itemGrid">
 
             {%- assign current_dir = page.url | split: "/" | pop | join: "/" -%}
-            {%- assign entry_pages = site.pages
-                | where_exp: "p", "p.type != 'category_index'"
-                | where_exp: "p", "p.layout == null or p.layout == ''"
-                | sort: "title" -%}
+            {%- assign entry_pages = site.pages | sort: "title" -%}
 
             {%- for p in entry_pages -%}
+                {%- if p.type == "category_index" -%}{%- continue -%}{%- endif -%}
+                {%- if p.layout and p.layout != "" and p.layout != "null" -%}{%- continue -%}{%- endif -%}
                 {%- assign p_dir = p.url | split: "/" | pop | join: "/" -%}
                 {%- if p_dir == current_dir -%}
                     {%- assign p_filename = p.url | split: "/" | last -%}
