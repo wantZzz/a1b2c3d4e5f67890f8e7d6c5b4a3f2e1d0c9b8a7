@@ -213,78 +213,8 @@ layout: null
             </div>
         </div>
 
-        <!-- 1欄 Grid：Liquid 遍歷同目錄下所有非目錄頁的頁面 -->
-        <div class="item-grid" id="itemGrid">
-
-            {%- assign current_dir = page.url | split: "/" | pop | join: "/" -%}
-            {%- assign entry_pages = site.pages | sort: "title" -%}
-
-            {%- for p in entry_pages -%}
-                {%- if p.type == "category_index" -%}{%- continue -%}{%- endif -%}
-                {%- if p.layout and p.layout != "" and p.layout != "null" -%}{%- continue -%}{%- endif -%}
-                {%- assign p_dir = p.url | split: "/" | pop | join: "/" -%}
-                {%- if p_dir == current_dir -%}
-                    {%- assign p_filename = p.url | split: "/" | last -%}
-                    {%- assign role_class = p.role | default: "primary" -%}
-                    {%- if p.role == "supplementary" -%}
-                        {%- assign icon_name = "book-open" -%}
-                        {%- assign tag_label = "補充資料" -%}
-                    {%- else -%}
-                        {%- assign icon_name = "bookmark" -%}
-                        {%- assign tag_label = "主要內容" -%}
-                    {%- endif -%}
-
-            <div class="card-wrap" data-tab="{{ role_class }}" data-title="{{ p.title | downcase }}">
-                <div class="card-main">
-                    <div class="item-icon-wrap icon-{{ role_class }}">
-                        <i data-lucide="{{ icon_name }}" style="width:15px;height:15px;"></i>
-                    </div>
-                    <div class="card-body">
-                        <div class="card-title-row">
-                            <a class="card-title" href="{{ p.url | relative_url }}">
-                                {{ p.title }}
-                                <i data-lucide="arrow-up-right" style="width:14px;height:14px;"></i>
-                            </a>
-                            <div class="card-meta">
-                                <span class="tag-badge tag-{{ role_class }}">{{ tag_label }}</span>
-                                <span class="file-chip">{{ p_filename }}</span>
-                            </div>
-                        </div>
-                        {%- if p.description -%}
-                        <div class="card-desc">{{ p.description }}</div>
-                        {%- endif -%}
-                    </div>
-                </div>
-
-                {%- if p.related and p.related.size > 0 -%}
-                <div class="sub-section">
-                    <div class="sub-section-label">相關資源</div>
-                    <div class="sub-link-list">
-                        {%- for rel_filename in p.related -%}
-                            {%- assign rel_url = current_dir | append: "/" | append: rel_filename -%}
-                            {%- assign rel_page = site.pages | where: "url", rel_url | first -%}
-                            {%- if rel_page -%}
-                                {%- assign rel_title = rel_page.title -%}
-                            {%- else -%}
-                                {%- assign rel_title = rel_filename -%}
-                            {%- endif -%}
-                        <a href="{{ rel_url | relative_url }}" class="sub-link-row">
-                            <span class="sub-link-left">
-                                <i data-lucide="file-text" style="width:14px;height:14px;"></i>
-                                <span class="sub-link-text">{{ rel_title }}</span>
-                            </span>
-                            <span class="sub-badge">{{ rel_filename }}</span>
-                        </a>
-                        {%- endfor -%}
-                    </div>
-                </div>
-                {%- endif -%}
-            </div>
-
-                {%- endif -%}
-            {%- endfor -%}
-
-        </div>
+        <!-- 1欄 Grid：由 JS 依據下方 allPagesData 動態渲染 -->
+        <div class="item-grid" id="itemGrid"></div>
 
         <!-- 無結果提示 -->
         <div id="noResults">
@@ -301,9 +231,104 @@ layout: null
 </div>
 
 <script>
+    // ── Liquid 注入資料 ──────────────────────────────────────────
+    const currentPageDir = {{ page.dir | jsonify }};
+    const siteBaseUrl    = {{ site.baseurl | default: "" | jsonify }};
+
+    // 建立 related 檔名 → 標題的對照表（由所有同目錄頁面提供）
+    const titleMap = {};
+    {% for p in site.pages %}
+        {% if p.dir == page.dir and p.url != page.url %}
+        titleMap[{{ p.name | jsonify }}] = {{ p.title | default: p.name | jsonify }};
+        {% endif %}
+    {% endfor %}
+
+    const allPagesData = [];
+    {% for p in site.pages %}
+        {% if p.dir == page.dir and p.url != page.url %}
+        allPagesData.push({
+            name:        {{ p.name        | jsonify }},
+            url:         {{ p.url         | prepend: site.baseurl | jsonify }},
+            title:       {{ p.title       | default: p.name | jsonify }},
+            description: {{ p.description | default: "" | jsonify }},
+            role:        {{ p.role        | default: "primary" | jsonify }},
+            related:     {% if p.related %}{{ p.related | jsonify }}{% else %}[]{% endif %}
+        });
+        {% endif %}
+    {% endfor %}
+
+    // 按 title 排序
+    allPagesData.sort((a, b) => a.title.localeCompare(b.title, 'zh-Hant'));
+
+    // ── DOM 建構 ────────────────────────────────────────────────
+    const ROLE_CONFIG = {
+        primary:      { icon: 'bookmark',  label: '主要內容', iconClass: 'icon-primary',      badgeClass: 'tag-primary' },
+        supplementary:{ icon: 'book-open', label: '補充資料', iconClass: 'icon-supplementary', badgeClass: 'tag-supplementary' }
+    };
+
+    function esc(str) {
+        return String(str)
+            .replace(/&/g,'&amp;').replace(/</g,'&lt;')
+            .replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+    }
+
+    function buildCard(p) {
+        const cfg      = ROLE_CONFIG[p.role] || ROLE_CONFIG.primary;
+        const filename = p.name;
+
+        const relatedHTML = p.related.length ? `
+            <div class="sub-section">
+                <div class="sub-section-label">相關資源</div>
+                <div class="sub-link-list">
+                    ${p.related.map(rel => {
+                        const relTitle = titleMap[rel] || rel;
+                        const relUrl   = siteBaseUrl + currentPageDir + rel;
+                        return `<a href="${esc(relUrl)}" class="sub-link-row">
+                            <span class="sub-link-left">
+                                <i data-lucide="file-text" style="width:14px;height:14px;"></i>
+                                <span class="sub-link-text">${esc(relTitle)}</span>
+                            </span>
+                            <span class="sub-badge">${esc(rel)}</span>
+                        </a>`;
+                    }).join('')}
+                </div>
+            </div>` : '';
+
+        const descHTML = p.description
+            ? `<div class="card-desc">${esc(p.description)}</div>` : '';
+
+        const wrap = document.createElement('div');
+        wrap.className = 'card-wrap';
+        wrap.dataset.tab   = p.role || 'primary';
+        wrap.dataset.title = p.title.toLowerCase();
+        wrap.innerHTML = `
+            <div class="card-main">
+                <div class="item-icon-wrap ${cfg.iconClass}">
+                    <i data-lucide="${cfg.icon}" style="width:15px;height:15px;"></i>
+                </div>
+                <div class="card-body">
+                    <div class="card-title-row">
+                        <a class="card-title" href="${esc(p.url)}">
+                            ${esc(p.title)}
+                            <i data-lucide="arrow-up-right" style="width:14px;height:14px;"></i>
+                        </a>
+                        <div class="card-meta">
+                            <span class="tag-badge ${cfg.badgeClass}">${cfg.label}</span>
+                            <span class="file-chip">${esc(filename)}</span>
+                        </div>
+                    </div>
+                    ${descHTML}
+                </div>
+            </div>
+            ${relatedHTML}`;
+        return wrap;
+    }
+
+    const grid = document.getElementById('itemGrid');
+    allPagesData.forEach(p => grid.appendChild(buildCard(p)));
     lucide.createIcons();
 
-    const cards    = Array.from(document.querySelectorAll('.card-wrap'));
+    // ── Tab / 搜尋邏輯 ───────────────────────────────────────────
     const noRes    = document.getElementById('noResults');
     const cntBadge = document.getElementById('countBadge');
     const secTitle = document.getElementById('sectionTitle');
@@ -311,6 +336,7 @@ layout: null
     let currentTab = 'all', searchQ = '';
 
     function run() {
+        const cards = Array.from(document.querySelectorAll('.card-wrap'));
         let visible = 0;
         cards.forEach(card => {
             const matchTab = currentTab === 'all' || card.dataset.tab === currentTab;
