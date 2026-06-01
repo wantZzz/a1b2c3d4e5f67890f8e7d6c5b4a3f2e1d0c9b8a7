@@ -53,12 +53,18 @@ layout: null
         /* ── 區塊標題列 ── */
         .section-header {
             display: flex; align-items: center; justify-content: space-between;
+            flex-wrap: wrap; gap: 8px;
             padding: 13px 20px 11px; border-bottom: 1px solid #eaecf0;
         }
         .section-title { display: flex; align-items: center; gap: 7px; font-size: 13px; font-weight: 600; color: #374151; }
+        .section-right {
+            display: flex; align-items: center; gap: 8px;
+            flex-wrap: wrap; justify-content: flex-end;
+        }
         .count-badge {
             font-size: 11.5px; font-weight: 500; color: #6b7280;
             background: #f3f4f6; border: 1px solid #e5e7eb; border-radius: 20px; padding: 2px 9px;
+            white-space: nowrap;
         }
         .search-wrap { position: relative; }
         .search-wrap svg {
@@ -71,6 +77,13 @@ layout: null
             outline: none; transition: border-color .15s, background .15s, width .2s;
         }
         .search-input:focus { background: #fff; border-color: #93a5f5; width: 230px; }
+        /* 搜尋框：窄版佔整行 */
+        @media (max-width: 480px) {
+            .section-right { width: 100%; }
+            .search-wrap   { flex: 1; }
+            .search-input  { width: 100%; }
+            .search-input:focus { width: 100%; }
+        }
 
         /* ── 1欄 Grid ── */
         .item-grid { display: grid; grid-template-columns: 1fr; }
@@ -89,23 +102,26 @@ layout: null
             display: flex; align-items: center; justify-content: center;
             flex-shrink: 0; margin-top: 3px;
         }
-        .icon-primary     { background: #e8f4fd; color: #2f87c8; }
+        .icon-primary       { background: #e8f4fd; color: #2f87c8; }
         .icon-supplementary { background: #eafaf1; color: #27ae60; }
 
         .card-body { flex: 1; min-width: 0; padding-bottom: 16px; }
 
+        /* 標題列：標題 + 右側 meta，窄版 meta 換行 */
         .card-title-row {
-            display: flex; align-items: flex-start; justify-content: space-between; gap: 12px;
+            display: flex; align-items: flex-start; justify-content: space-between; gap: 10px;
         }
         .card-title {
             font-size: 15px; font-weight: 700; color: #111;
             display: flex; align-items: center; gap: 5px; line-height: 1.4;
             text-decoration: none; flex-shrink: 1; min-width: 0;
+            word-break: break-word;
         }
         .card-title svg { color: #9ca3af; flex-shrink: 0; }
         .card-title:hover { color: #3b5bdb; }
         .card-title:hover svg { color: #3b5bdb; }
 
+        /* 右側 meta：badge + chip，窄版時整個 meta 移到標題下方 */
         .card-meta {
             display: flex; align-items: center; gap: 5px;
             flex-shrink: 0; padding-top: 2px;
@@ -114,10 +130,8 @@ layout: null
             font-size: 11px; font-weight: 500; padding: 3px 8px;
             border-radius: 5px; white-space: nowrap;
         }
-        .tag-primary     { background: #e8f4fd; color: #2f87c8; border: 1px solid #c8e6f7; }
+        .tag-primary       { background: #e8f4fd; color: #2f87c8; border: 1px solid #c8e6f7; }
         .tag-supplementary { background: #eafaf1; color: #27ae60; border: 1px solid #b8edcf; }
-        /* 寬度不足時隱藏 badge，file-chip 常駐 */
-        @media (max-width: 540px) { .tag-badge { display: none; } }
 
         .file-chip {
             font-size: 11px; color: #9ca3af;
@@ -125,13 +139,24 @@ layout: null
             padding: 3px 7px; font-family: 'SF Mono', 'Consolas', monospace; white-space: nowrap;
         }
 
+        /* 窄版：meta 換到標題下一行；badge 隱藏，chip 常駐 */
+        @media (max-width: 480px) {
+            .card-title-row  { flex-direction: column; gap: 5px; }
+            .card-meta       { padding-top: 0; }
+            .tag-badge       { display: none; }
+        }
+
+        /* 說明：允許換行，避免截斷 */
         .card-desc {
             font-size: 13px; color: #4b5563;
             margin-top: 6px; line-height: 1.65;
+            word-break: break-word; overflow-wrap: anywhere;
         }
 
         /* ── 子連結區 ── */
         .sub-section { padding: 0 20px 16px 44px; }
+        @media (max-width: 480px) { .sub-section { padding-left: 20px; } }
+
         .sub-section-label {
             font-size: 11.5px; font-weight: 500; color: #9ca3af;
             letter-spacing: 0.04em; margin-bottom: 8px; margin-top: 4px;
@@ -140,22 +165,36 @@ layout: null
             border: 1px solid #e5e7eb; border-radius: 8px; overflow: hidden;
             background: #fff;
         }
+        /* 子連結行：寬版橫排，窄版換行 */
         .sub-link-row {
             display: flex; align-items: center; justify-content: space-between;
+            flex-wrap: wrap; gap: 4px;
             padding: 10px 14px; border-bottom: 1px solid #f0f2f5;
             text-decoration: none; color: #374151; font-size: 13px;
             transition: background .1s;
         }
         .sub-link-row:last-child { border-bottom: none; }
         .sub-link-row:hover { background: #f8f9fb; }
-        .sub-link-left { display: flex; align-items: center; gap: 9px; min-width: 0; }
+        .sub-link-left { display: flex; align-items: center; gap: 9px; min-width: 0; flex: 1; }
         .sub-link-left svg { color: #9ca3af; flex-shrink: 0; }
-        .sub-link-text { color: #2563eb; font-weight: 500; }
+        .sub-link-text { color: #2563eb; font-weight: 500; word-break: break-word; }
         .sub-link-row:hover .sub-link-text { text-decoration: underline; }
+
+        /* 子連結 badge：role 類型，不再用 file-chip */
         .sub-badge {
             font-size: 11px; padding: 2px 8px; border-radius: 5px;
             font-weight: 500; white-space: nowrap; flex-shrink: 0;
-            background: #f3f4f6; color: #374151; border: 1px solid #e5e7eb;
+        }
+        .sub-badge.sub-primary       { background: #e8f4fd; color: #2f87c8; border: 1px solid #c8e6f7; }
+        .sub-badge.sub-supplementary { background: #eafaf1; color: #27ae60; border: 1px solid #b8edcf; }
+
+        /* 窄版：badge 換行後佔整行；再更窄只顯示一個 */
+        @media (max-width: 480px) {
+            .sub-link-row  { flex-direction: column; align-items: flex-start; }
+            .sub-badge     { align-self: flex-start; }
+        }
+        @media (max-width: 360px) {
+            .sub-badge + .sub-badge { display: none; }
         }
 
         /* ── 無結果 ── */
@@ -204,7 +243,7 @@ layout: null
                 <i data-lucide="layers" style="width:13px;height:13px;"></i>
                 <span id="sectionTitle">所有內容總覽</span>
             </div>
-            <div style="display:flex;align-items:center;gap:10px;">
+            <div class="section-right">
                 <span class="count-badge" id="countBadge"></span>
                 <div class="search-wrap">
                     <i data-lucide="search" style="width:13px;height:13px;"></i>
@@ -235,11 +274,13 @@ layout: null
     const currentPageDir = {{ page.dir | jsonify }};
     const siteBaseUrl    = {{ site.baseurl | default: "" | jsonify }};
 
-    // 建立 related 檔名 → 標題的對照表（由所有同目錄頁面提供）
+    // 建立 related 檔名 → 標題 / role 的對照表
     const titleMap = {};
+    const roleMap  = {};
     {% for p in site.pages %}
         {% if p.dir == page.dir and p.url != page.url %}
         titleMap[{{ p.name | jsonify }}] = {{ p.title | default: p.name | jsonify }};
+        roleMap[{{ p.name | jsonify }}]  = {{ p.role  | default: "primary" | jsonify }};
         {% endif %}
     {% endfor %}
 
@@ -281,14 +322,16 @@ layout: null
                 <div class="sub-section-label">相關資源</div>
                 <div class="sub-link-list">
                     ${p.related.map(rel => {
-                        const relTitle = titleMap[rel] || rel;
+                        const relTitle = titleMap[rel]       || rel;
+                        const relRole  = roleMap[rel]        || 'primary';
+                        const relCfg   = ROLE_CONFIG[relRole] || ROLE_CONFIG.primary;
                         const relUrl   = siteBaseUrl + currentPageDir + rel;
                         return `<a href="${esc(relUrl)}" class="sub-link-row">
                             <span class="sub-link-left">
                                 <i data-lucide="file-text" style="width:14px;height:14px;"></i>
                                 <span class="sub-link-text">${esc(relTitle)}</span>
                             </span>
-                            <span class="sub-badge">${esc(rel)}</span>
+                            <span class="sub-badge sub-${relRole}">${relCfg.label}</span>
                         </a>`;
                     }).join('')}
                 </div>
