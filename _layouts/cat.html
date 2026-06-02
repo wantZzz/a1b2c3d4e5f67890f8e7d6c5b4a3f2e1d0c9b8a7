@@ -205,6 +205,36 @@ layout: null
         .footer { text-align: center; margin-top: 24px; font-size: 12px; color: #b0b7c3; }
         .footer a { color: #9ca3af; text-decoration: none; }
         .footer a:hover { color: #374151; }
+
+        /* ── Header：回上層按鈕 ── */
+        .header-card { justify-content: space-between; }
+        .header-left { display: flex; align-items: center; gap: 14px; min-width: 0; }
+        .back-btn {
+            display: flex; align-items: center; gap: 5px;
+            padding: 6px 11px; border-radius: 7px;
+            font-size: 12.5px; font-weight: 500; color: #6b7280;
+            background: #f3f4f6; border: 1px solid #e5e7eb;
+            text-decoration: none; white-space: nowrap; flex-shrink: 0;
+            transition: background .15s, color .15s, border-color .15s;
+        }
+        .back-btn svg { color: #9ca3af; transition: color .15s; }
+        .back-btn:hover { background: #e8effe; color: #3b5bdb; border-color: #c5d2fb; }
+        .back-btn:hover svg { color: #3b5bdb; }
+
+        /* ── 回頁首懸浮按鈕 ── */
+        #backToTop {
+            position: fixed; bottom: 28px; right: 24px; z-index: 999;
+            width: 40px; height: 40px; border-radius: 50%;
+            background: #fff; border: 1px solid #dde1e7;
+            box-shadow: 0 2px 8px rgba(0,0,0,.10);
+            display: flex; align-items: center; justify-content: center;
+            cursor: pointer; color: #6b7280;
+            opacity: 0; pointer-events: none;
+            transform: translateY(8px);
+            transition: opacity .22s, transform .22s, background .15s, color .15s, border-color .15s;
+        }
+        #backToTop.visible { opacity: 1; pointer-events: auto; transform: translateY(0); }
+        #backToTop:hover { background: #e8effe; color: #3b5bdb; border-color: #c5d2fb; }
     </style>
 </head>
 <body>
@@ -212,13 +242,19 @@ layout: null
 
     <!-- Header 卡片 -->
     <div class="header-card">
-        <div class="header-icon">
-            <i data-lucide="layers" style="width:18px;height:18px;"></i>
+        <div class="header-left">
+            <div class="header-icon">
+                <i data-lucide="layers" style="width:18px;height:18px;"></i>
+            </div>
+            <div>
+                <div class="header-title">{{ page.title }}</div>
+                <div class="header-subtitle">{{ page.description }}</div>
+            </div>
         </div>
-        <div>
-            <div class="header-title">{{ page.title }}</div>
-            <div class="header-subtitle">{{ page.description }}</div>
-        </div>
+        <a class="back-btn" href="{{ page.dir | split: "/" | pop | join: "/" | prepend: "/" | append: "/" | relative_url }}">
+            <i data-lucide="corner-left-up" style="width:13px;height:13px;"></i>
+            上一層
+        </a>
     </div>
 
     <!-- 主內容卡片 -->
@@ -263,6 +299,10 @@ layout: null
 
     </div>
 
+    <!-- 回頁首懸浮按鈕 -->
+    <button id="backToTop" aria-label="回到頁首" onclick="window.scrollTo({top:0,behavior:'smooth'})">
+        <i data-lucide="chevron-up" style="width:18px;height:18px;"></i>
+    </button>
     <div class="footer">
         <span>© {{ site.time | date: "%Y" }} {{ page.title }}</span>
         &nbsp;·&nbsp;<a href="{{ '/' | relative_url }}">回首頁</a>
@@ -407,6 +447,14 @@ layout: null
     });
 
     run();
+
+    // ── 回頁首按鈕 ───────────────────────────────────────────────
+    (function() {
+        const fab = document.getElementById('backToTop');
+        window.addEventListener('scroll', function() {
+            fab.classList.toggle('visible', window.scrollY > 240);
+        }, { passive: true });
+    })();
 </script>
 </body>
 </html>
