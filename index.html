@@ -1,39 +1,370 @@
 ---
 layout: null
+title: "專案文件與知識庫門戶"
 ---
 <!DOCTYPE html>
-<html>
+<html lang="zh-Hant">
 <head>
     <meta charset="UTF-8">
-    <title>網站主目錄</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ page.title }}</title>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+        * { font-family: 'Noto Sans TC', -apple-system, BlinkMacSystemFont, sans-serif; }
+        body { background: #f4f6f9; color: #1e293b; overflow-x: hidden; }
+
+        /* 全域容器 */
+        .portal-wrapper { max-width: 1200px; margin: 0 auto; padding: 0 20px 80px; }
+
+        /* ── 頂部 Navigation Bar ── */
+        .navbar {
+            display: flex; align-items: center; justify-content: space-between;
+            padding: 18px 0; border-bottom: 1px solid #e2e8f0; margin-bottom: 24px;
+        }
+        .nav-logo { display: flex; align-items: center; gap: 10px; font-weight: 700; font-size: 18px; color: #1e3a8a; }
+        .nav-links { display: flex; gap: 20px; list-style: none; }
+        .nav-link { font-size: 14px; color: #475569; text-decoration: none; font-weight: 500; transition: color .2s; }
+        .nav-link:hover { color: #2563eb; }
+
+        /* ── 首頁專屬 Hero 橫幅 ── */
+        .hero-banner {
+            background: linear-gradient(135deg, #1e3a8a 0%, #3b82f6 100%);
+            border-radius: 16px; padding: 48px 32px; text-align: center; color: #ffffff;
+            box-shadow: 0 10px 25px -5px rgba(59, 130, 246, 0.2);
+            margin-bottom: 32px; position: relative; overflow: hidden;
+        }
+        .hero-banner::before {
+            content: ''; position: absolute; top: -50%; left: -50%; width: 200%; height: 200%;
+            background: radial-gradient(circle, rgba(255,255,255,0.08) 0%, transparent 80%);
+            pointer-events: none;
+        }
+        .hero-badge {
+            display: inline-block; background: rgba(255, 255, 255, 0.15); border: 1px solid rgba(255, 255, 255, 0.25);
+            padding: 4px 12px; border-radius: 20px; font-size: 12px; font-weight: 600; letter-spacing: 1px;
+            margin-bottom: 16px; text-transform: uppercase;
+        }
+        .hero-title { font-size: 32px; font-weight: 700; margin-bottom: 12px; letter-spacing: -0.5px; }
+        .hero-subtitle { font-size: 16px; color: #bfdbfe; font-weight: 300; max-width: 650px; margin: 0 auto; line-height: 1.6; }
+
+        /* ── 數據統計卡片 ── */
+        .stats-row {
+            display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-bottom: 32px;
+        }
+        .stat-card {
+            background: #ffffff; border: 1px solid #e2e8f0; border-radius: 12px; padding: 18px 20px;
+            display: flex; align-items: center; gap: 14px; box-shadow: 0 1px 3px rgba(0,0,0,0.02);
+        }
+        .stat-icon {
+            width: 44px; height: 44px; border-radius: 10px; display: flex; align-items: center; justify-content: center;
+        }
+        .stat-icon-blue { background: #eff6ff; color: #2563eb; }
+        .stat-icon-green { background: #f0fdf4; color: #16a34a; }
+        .stat-icon-purple { background: #faf5ff; color: #9333ea; }
+        .stat-num { font-size: 20px; font-weight: 700; color: #0f172a; }
+        .stat-lbl { font-size: 12px; color: #64748b; margin-top: 1px; }
+
+        @media (max-width: 768px) {
+            .stats-row { grid-template-columns: 1fr; }
+        }
+
+        /* ── 主導覽控制區 ── */
+        .main-control-bar {
+            display: flex; align-items: center; justify-content: space-between;
+            margin-bottom: 24px; padding-bottom: 12px; border-bottom: 1px solid #e2e8f0;
+        }
+        .section-indicator-title {
+            display: flex; align-items: center; gap: 8px; font-size: 16px; font-weight: 700; color: #0f172a;
+        }
+        .results-indicator {
+            font-size: 13px; color: #64748b; font-weight: 500; background: #e2e8f0; padding: 3px 10px; border-radius: 20px;
+        }
+
+        /* ── 首頁子目錄卡片網格 ── */
+        .portal-grid {
+            display: grid; grid-template-columns: repeat(auto-fill, minmax(360px, 1fr)); gap: 24px;
+        }
+        @media (max-width: 640px) {
+            .portal-grid { grid-template-columns: 1fr; }
+        }
+
+        .dir-card {
+            background: #ffffff; border: 1px solid #e2e8f0; border-radius: 14px;
+            overflow: hidden; display: flex; flex-direction: column;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.02), 0 2px 4px -1px rgba(0, 0, 0, 0.01);
+            transition: transform .2s, box-shadow .2s;
+        }
+        .dir-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 12px 20px -8px rgba(0, 0, 0, 0.08);
+        }
+
+        /* 卡片頂部 */
+        .dir-header {
+            padding: 20px 20px 16px; border-bottom: 1px solid #f1f5f9;
+            display: flex; align-items: flex-start; justify-content: space-between; gap: 12px;
+        }
+        .dir-title-area { display: flex; align-items: center; gap: 12px; min-width: 0; }
+        
+        .dir-icon-wrap {
+            width: 38px; height: 38px; border-radius: 9px;
+            display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+        }
+        .icon-default { background: #eff6ff; color: #2563eb; }
+
+        .dir-title {
+            font-size: 16px; font-weight: 700; color: #0f172a; text-decoration: none;
+            display: flex; align-items: center; gap: 4px; line-height: 1.4;
+        }
+        .dir-title:hover { color: #2563eb; }
+        .dir-title svg { opacity: 0; transition: opacity .15s; color: #2563eb; }
+        .dir-card:hover .dir-title svg { opacity: 1; }
+
+        .dir-path { font-size: 12px; color: #64748b; font-family: 'SF Mono', monospace; margin-top: 2px; }
+
+        /* 卡片主體 */
+        .dir-body { padding: 18px 20px; flex: 1; display: flex; flex-direction: column; }
+        .dir-desc { font-size: 13px; color: #475569; line-height: 1.6; }
+
+        /* ──【保留樣式】未來若需要「最近新增」或「精選收錄」可用此區塊 ── */
+        .recent-files-box { margin-top: 16px; border-top: 1px dashed #e2e8f0; padding-top: 14px; display: none; }
+        .files-header { font-size: 11.5px; font-weight: 600; color: #94a3b8; letter-spacing: 0.5px; margin-bottom: 8px; }
+        .file-list { display: flex; flex-direction: column; gap: 6px; }
+        .file-item {
+            display: flex; align-items: center; justify-content: space-between;
+            padding: 6px 10px; border-radius: 6px; background: #f8fafc;
+            border: 1px solid #f1f5f9; text-decoration: none; font-size: 12.5px; color: #334155;
+            transition: all .15s;
+        }
+        .file-item:hover { background: #f1f5f9; border-color: #cbd5e1; color: #2563eb; }
+        .file-left { display: flex; align-items: center; gap: 8px; min-width: 0; }
+        .file-left svg { color: #94a3b8; flex-shrink: 0; }
+        .file-name { font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+        /* ── Footer ── */
+        .footer-sec { border-top: 1px solid #e2e8f0; padding: 32px 0; text-align: center; font-size: 12.5px; color: #64748b; margin-top: 48px; }
+        .footer-sec a { color: #3b82f6; text-decoration: none; margin: 0 8px; }
+        .footer-sec a:hover { text-decoration: underline; }
+
+        /* ── 回頁首懸浮按鈕 ── */
+        #backToTop {
+            position: fixed; bottom: 32px; right: 32px; z-index: 999;
+            width: 44px; height: 44px; border-radius: 50%;
+            background: #ffffff; border: 1px solid #e2e8f0;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+            display: flex; align-items: center; justify-content: center;
+            cursor: pointer; color: #475569; opacity: 0; pointer-events: none;
+            transform: translateY(8px); transition: all .2s;
+        }
+        #backToTop.visible { opacity: 1; pointer-events: auto; transform: translateY(0); }
+        #backToTop:hover { background: #3b82f6; color: #ffffff; border-color: #3b82f6; }
+    </style>
 </head>
 <body>
 
-    <h1>網站主目錄</h1>
-    <p>歡迎造訪本站，以下是目前所有資料夾分類的目錄指引：</p>
-    
-    <hr>
+<!-- Jekyll 液態計數與篩選邏輯 -->
+{% assign category_pages = site.pages | where: "type", "category_index" %}
+{% assign category_count = category_pages | size %}
 
-    <ul>
-        {% for p in site.pages %}
-            {% comment %} 
-                篩選出設定為 category_index 的頁面，並排除主目錄本身 
-            {% endcomment %}
-            {% if p.type == "category_index" and p.url != page.url %}
-                <li style="margin-bottom: 20px;">
-                    <!-- 顯示子目錄的標題與超連結 -->
-                    <h3><a href="{{ p.url | relative_url }}">{{ p.title }}</a></h3>
-                    
-                    <!-- 顯示子目錄的簡介描述 -->
-                    {% if p.description %}
-                        <p>{{ p.description }}</p>
-                    {% else %}
-                        <p><em>此分類暫無描述。</em></p>
+{% assign total_articles = 0 %}
+{% for p in site.pages %}
+    {% if p.type != "category_index" and p.url != "/" and p.url != "/index.html" and p.dir != "/" %}
+        {% assign total_articles = total_articles | plus: 1 %}
+    {% endif %}
+{% endfor %}
+
+<div class="portal-wrapper">
+
+    <!-- 頂部導航欄 -->
+    <nav class="navbar">
+        <div class="nav-logo">
+            <i data-lucide="compass" style="width:22px;height:22px;color:#2563eb;"></i>
+            <span>{{ page.title }}</span>
+        </div>
+        <ul class="nav-links">
+            <li><a href="{{ '/' | relative_url }}" class="nav-link">首頁</a></li>
+            <li><a href="#" class="nav-link" onclick="alert('說明文件尚未發布'); return false;">開發規範</a></li>
+            <li><a href="#" class="nav-link" onclick="window.scrollTo({top: document.body.scrollHeight, behavior: 'smooth'}); return false;">聯繫團隊</a></li>
+        </ul>
+    </nav>
+
+    <!-- 頂部大氣 Hero 區塊 -->
+    <header class="hero-banner">
+        <span class="hero-badge">Knowledge Database</span>
+        <h1 class="hero-title">{{ page.title }}</h1>
+        <p class="hero-subtitle">收錄並歸檔全專案所有子目錄中的結構化學術、設計與前端開發資源，協助團隊快速定位所需手冊。</p>
+    </header>
+
+    <!-- 數據概覽列 (透過 Jekyll 動態注入數據) -->
+    <div class="stats-row">
+        <div class="stat-card">
+            <div class="stat-icon stat-icon-blue">
+                <i data-lucide="folder-open" style="width:20px;height:20px;"></i>
+            </div>
+            <div>
+                <div class="stat-num">{{ category_count }} 個</div>
+                <div class="stat-lbl">子目錄</div>
+            </div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-icon stat-icon-green">
+                <i data-lucide="file-check-2" style="width:20px;height:20px;"></i>
+            </div>
+            <div>
+                <div class="stat-num">{{ total_articles }} 篇</div>
+                <div class="stat-lbl">收錄主題文章</div>
+            </div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-icon stat-icon-purple">
+                <i data-lucide="activity" style="width:20px;height:20px;"></i>
+            </div>
+            <div>
+                <div class="stat-num">{{ site.time | date: "%Y/%m" }}</div>
+                <div class="stat-lbl">最後更新版本</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 標題與數據控制列 -->
+    <div class="main-control-bar">
+        <div class="section-indicator-title">
+            <i data-lucide="folder" style="width:18px;height:18px;color:#475569;"></i>
+            <span>所有子目錄索引</span>
+        </div>
+        <div class="results-indicator" id="countBadge">{{ category_count }} 筆項目</div>
+    </div>
+
+    <!-- 2/3欄 網格卡片區 -->
+    <div class="portal-grid" id="portalGrid"></div>
+
+</div>
+
+<!-- 回頁首按鈕 -->
+<button id="backToTop" aria-label="回到頁首" onclick="window.scrollTo({top:0,behavior:'smooth'})">
+    <i data-lucide="arrow-up" style="width:18px;height:18px;"></i>
+</button>
+
+<!-- 頁尾 -->
+<footer class="footer-sec">
+    <div>© {{ site.time | date: "%Y" }} {{ page.title }} · 基於靜態化子目錄結構建立</div>
+    <div style="margin-top: 8px;">
+        <a href="{{ '/' | relative_url }}">回門戶首頁</a>|
+        <a href="#" onclick="alert('即將跳轉說明文件'); return false;">Jekyll 配置規範</a>|
+        <a href="https://github.com" target="_blank">Git 儲存庫</a>
+    </div>
+</footer>
+
+<script>
+    // ── Jekyll 後端自動生成子目錄資訊陣列 ──────────────────
+    const allPagesData = [];
+
+    {% for cat in category_pages %}
+        {% assign cat_dir = cat.dir %}
+        allPagesData.push({
+            // 自動移除路徑前後斜線，如 "/ai-tools/" 轉換成乾淨的 "ai-tools"
+            path: {{ cat.dir | jsonify }}.replace(/^\/|\/$/g, ''),
+            url: {{ cat.url | relative_url | jsonify }},
+            title: {{ cat.title | default: cat.name | jsonify }},
+            description: {{ cat.description | default: "暫無描述。" | jsonify }},
+            role: {{ cat.role | default: "primary" | jsonify }},
+            related: [
+                {% assign first = true %}
+                {% for p in site.pages %}
+                    {% if p.dir == cat_dir and p.url != cat.url %}
+                        {% unless first %},{% endunless %}
+                        {
+                            path: {{ p.url | jsonify }}.replace(/^\/|\/$/g, ''),
+                            url: {{ p.url | relative_url | jsonify }},
+                            title: {{ p.title | default: p.name | jsonify }},
+                            role: {{ p.role | default: "primary" | jsonify }}
+                        }
+                        {% assign first = false %}
                     {% endif %}
-                </li>
-            {% endif %}
-        {% endfor %}
-    </ul>
+                {% endfor %}
+            ]
+        });
+    {% endfor %}
 
+    // 在前端依據語系名稱排序
+    allPagesData.sort((a, b) => a.title.localeCompare(b.title, 'zh-Hant'));
+
+    function esc(str) {
+        return String(str)
+            .replace(/&/g,'&amp;').replace(/</g,'&lt;')
+            .replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+    }
+
+    // 建立卡片 DOM
+    function buildDirCard(p) {
+        const iconClass = 'icon-default';
+        const iconName = 'folder';
+
+        /* 【保留樣式區塊】
+           未來如欲啟用「最近新增」或「精選收錄」列表，只需：
+           1. 將本 HTML style 區塊中 .recent-files-box 的 "display: none" 移除。
+        */
+        let recentFilesHTML = '';
+        if (p.related && p.related.length > 0) {
+            recentFilesHTML = `
+                <div class="recent-files-box">
+                    <div class="files-header">最近新增</div>
+                    <div class="file-list">
+                        ${p.related.map(rel => `
+                            <a href="${esc(rel.url)}" class="file-item">
+                                <div class="file-left">
+                                    <i data-lucide="file-text" style="width:13px;height:13px;"></i>
+                                    <span class="file-name">${esc(rel.title)}</span>
+                                </div>
+                                <i data-lucide="chevron-right" style="width:12px;height:12px;color:#94a3b8;"></i>
+                            </a>
+                        `).join('')}
+                    </div>
+                </div>
+            `;
+        }
+
+        const card = document.createElement('div');
+        card.className = 'dir-card';
+
+        card.innerHTML = `
+            <div class="dir-header">
+                <div class="dir-title-area">
+                    <div class="dir-icon-wrap ${iconClass}">
+                        <i data-lucide="${iconName}" style="width:18px;height:18px;"></i>
+                    </div>
+                    <div style="min-width: 0;">
+                        <a href="${esc(p.url)}" class="dir-title">
+                            ${esc(p.title)}
+                            <i data-lucide="arrow-up-right" style="width:14px;height:14px;"></i>
+                        </a>
+                        <div class="dir-path">${esc(p.path)}</div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="dir-body">
+                <p class="dir-desc">${esc(p.description)}</p>
+                ${recentFilesHTML}
+            </div>
+        `;
+        return card;
+    }
+
+    // 渲染卡片
+    const grid = document.getElementById('portalGrid');
+    allPagesData.forEach(p => grid.appendChild(buildDirCard(p)));
+    lucide.createIcons();
+
+    // ── 回頁首按鈕 ───────────────────────────────────────────────
+    (function() {
+        const fab = document.getElementById('backToTop');
+        window.addEventListener('scroll', function() {
+            fab.classList.toggle('visible', window.scrollY > 300);
+        }, { passive: true });
+    })();
+</script>
 </body>
 </html>
