@@ -11,72 +11,143 @@ layout: null
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@300;400;500;600&display=swap" rel="stylesheet">
     <style>
+        /* ── CSS 變數定義（支援亮色與暗色模式切換） ── */
+        :root {
+            --bg-body: #eef0f3;
+            --bg-card: #ffffff;
+            --text-primary: #111111;
+            --text-secondary: #374151;
+            --text-muted: #6b7280;
+            --text-light: #9ca3af;
+            --border-color: #dde1e7;
+            --border-light: #eaecf0;
+            
+            --icon-header-bg: #e8f0fe;
+            --icon-header-color: #4a6cf7;
+            --icon-primary-bg: #e8f4fd;
+            --icon-primary-color: #2f87c8;
+            --icon-supp-bg: #eafaf1;
+            --icon-supp-color: #27ae60;
+            
+            --tag-primary-bg: #e8f4fd;
+            --tag-primary-color: #2f87c8;
+            --tag-primary-border: #c8e6f7;
+            
+            --tag-supp-bg: #eafaf1;
+            --tag-supp-color: #27ae60;
+            --tag-supp-border: #b8edcf;
+
+            --file-chip-bg: #f3f4f6;
+            --file-chip-border: #e5e7eb;
+            --sub-link-hover: #f8f9fb;
+            --shadow-sm: 0 2px 8px rgba(0,0,0,.10);
+        }
+
+        :root.dark {
+            --bg-body: #0f172a;
+            --bg-card: #1e293b;
+            --text-primary: #f8fafc;
+            --text-secondary: #cbd5e1;
+            --text-muted: #94a3b8;
+            --text-light: #64748b;
+            --border-color: #334155;
+            --border-light: #1e293b;
+            
+            --icon-header-bg: rgba(74, 108, 247, 0.15);
+            --icon-header-color: #708cfc;
+            --icon-primary-bg: rgba(47, 135, 200, 0.15);
+            --icon-primary-color: #58b0f0;
+            --icon-supp-bg: rgba(39, 174, 96, 0.15);
+            --icon-supp-color: #4cd984;
+            
+            --tag-primary-bg: rgba(47, 135, 200, 0.15);
+            --tag-primary-color: #58b0f0;
+            --tag-primary-border: rgba(47, 135, 200, 0.3);
+            
+            --tag-supp-bg: rgba(39, 174, 96, 0.15);
+            --tag-supp-color: #4cd984;
+            --tag-supp-border: rgba(39, 174, 96, 0.3);
+
+            --file-chip-bg: #1e293b;
+            --file-chip-border: #334155;
+            --sub-link-hover: #1e293b;
+            --shadow-sm: 0 4px 12px rgba(0,0,0,0.3);
+        }
+
         *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
         * { font-family: 'Noto Sans TC', -apple-system, BlinkMacSystemFont, sans-serif; }
-        body { background: #eef0f3; color: #1a1a1a; }
+        body { background: var(--bg-body); color: var(--text-primary); transition: background 0.3s, color 0.3s; }
 
         .page-wrapper { max-width: 860px; margin: 0 auto; padding: 32px 20px 64px; }
 
         /* ── Header 卡片 ── */
         .header-card {
-            background: #fff; border: 1px solid #dde1e7; border-radius: 10px;
+            background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 10px;
             padding: 20px 24px; margin-bottom: 14px;
             display: flex; align-items: center; gap: 14px;
+            transition: background 0.3s, border-color 0.3s;
         }
         .header-icon {
-            width: 36px; height: 36px; background: #e8f0fe; border-radius: 8px;
+            width: 36px; height: 36px; background: var(--icon-header-bg); border-radius: 8px;
             display: flex; align-items: center; justify-content: center;
-            color: #4a6cf7; flex-shrink: 0;
+            color: var(--icon-header-color); flex-shrink: 0;
+            transition: background 0.3s, color 0.3s;
         }
-        .header-title   { font-size: 17px; font-weight: 600; color: #111; line-height: 1.3; }
-        .header-subtitle{ font-size: 13px; color: #7a8394; margin-top: 2px; }
+        .header-title   { font-size: 17px; font-weight: 600; color: var(--text-primary); line-height: 1.3; }
+        .header-subtitle{ font-size: 13px; color: var(--text-muted); margin-top: 2px; }
 
         /* ── 主內容卡片 ── */
-        .content-card { background: #fff; border: 1px solid #dde1e7; border-radius: 10px; overflow: hidden; }
+        .content-card { 
+            background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 10px; overflow: hidden; 
+            transition: background 0.3s, border-color 0.3s;
+        }
 
         /* ── Tab 列 ── */
         .tab-bar {
-            display: flex; border-bottom: 1px solid #eaecf0;
-            padding: 0 4px; gap: 2px; background: #fff;
+            display: flex; border-bottom: 1px solid var(--border-light);
+            padding: 0 4px; gap: 2px; background: var(--bg-card);
+            transition: background 0.3s, border-color 0.3s;
         }
         .tab-btn {
             display: flex; align-items: center; gap: 6px;
             padding: 12px 14px 11px; font-size: 13.5px; font-weight: 500;
-            color: #6b7280; border: none; background: none; cursor: pointer;
+            color: var(--text-muted); border: none; background: none; cursor: pointer;
             border-bottom: 2px solid transparent;
             transition: color .15s, border-color .15s;
             white-space: nowrap; font-family: inherit;
         }
-        .tab-btn:hover { color: #374151; }
-        .tab-btn.active { color: #111; border-bottom-color: #4a6cf7; font-weight: 600; }
+        .tab-btn:hover { color: var(--text-secondary); }
+        .tab-btn.active { color: var(--text-primary); border-bottom-color: #4a6cf7; font-weight: 600; }
 
         /* ── 區塊標題列 ── */
         .section-header {
             display: flex; align-items: center; justify-content: space-between;
             flex-wrap: wrap; gap: 8px;
-            padding: 13px 20px 11px; border-bottom: 1px solid #eaecf0;
+            padding: 13px 20px 11px; border-bottom: 1px solid var(--border-light);
+            transition: border-color 0.3s;
         }
-        .section-title { display: flex; align-items: center; gap: 7px; font-size: 13px; font-weight: 600; color: #374151; }
+        .section-title { display: flex; align-items: center; gap: 7px; font-size: 13px; font-weight: 600; color: var(--text-secondary); }
         .section-right {
             display: flex; align-items: center; gap: 8px;
             flex-wrap: wrap; justify-content: flex-end;
         }
         .count-badge {
-            font-size: 11.5px; font-weight: 500; color: #6b7280;
-            background: #f3f4f6; border: 1px solid #e5e7eb; border-radius: 20px; padding: 2px 9px;
+            font-size: 11.5px; font-weight: 500; color: var(--text-muted);
+            background: var(--file-chip-bg); border: 1px solid var(--file-chip-border); border-radius: 20px; padding: 2px 9px;
             white-space: nowrap;
+            transition: background 0.3s, border-color 0.3s;
         }
         .search-wrap { position: relative; }
         .search-wrap svg {
             position: absolute; left: 9px; top: 50%; transform: translateY(-50%);
-            color: #9ca3af; pointer-events: none;
+            color: var(--text-light); pointer-events: none;
         }
         .search-input {
             width: 190px; padding: 5px 10px 5px 29px; font-size: 12.5px; font-family: inherit;
-            background: #f3f4f6; border: 1px solid #e5e7eb; border-radius: 6px; color: #374151;
+            background: var(--file-chip-bg); border: 1px solid var(--file-chip-border); border-radius: 6px; color: var(--text-primary);
             outline: none; transition: border-color .15s, background .15s, width .2s;
         }
-        .search-input:focus { background: #fff; border-color: #93a5f5; width: 230px; }
+        .search-input:focus { background: var(--bg-card); border-color: #93a5f5; width: 230px; }
         /* 搜尋框：窄版佔整行 */
         @media (max-width: 480px) {
             .section-right { width: 100%; }
@@ -89,7 +160,7 @@ layout: null
         .item-grid { display: grid; grid-template-columns: 1fr; }
 
         /* ── 每張卡片 ── */
-        .card-wrap { border-bottom: 1px solid #eaecf0; }
+        .card-wrap { border-bottom: 1px solid var(--border-light); transition: border-color 0.3s; }
         .card-wrap:last-child { border-bottom: none; }
 
         .card-main {
@@ -101,9 +172,10 @@ layout: null
             width: 30px; height: 30px; border-radius: 7px;
             display: flex; align-items: center; justify-content: center;
             flex-shrink: 0; margin-top: 3px;
+            transition: background 0.3s, color 0.3s;
         }
-        .icon-primary       { background: #e8f4fd; color: #2f87c8; }
-        .icon-supplementary { background: #eafaf1; color: #27ae60; }
+        .icon-primary       { background: var(--icon-primary-bg); color: var(--icon-primary-color); }
+        .icon-supplementary { background: var(--icon-supp-bg); color: var(--icon-supp-color); }
 
         .card-body { flex: 1; min-width: 0; padding-bottom: 16px; }
 
@@ -112,12 +184,13 @@ layout: null
             display: flex; align-items: flex-start; justify-content: space-between; gap: 10px;
         }
         .card-title {
-            font-size: 15px; font-weight: 700; color: #111;
+            font-size: 15px; font-weight: 700; color: var(--text-primary);
             display: flex; align-items: center; gap: 5px; line-height: 1.4;
             text-decoration: none; flex-shrink: 1; min-width: 0;
             word-break: break-word;
+            transition: color 0.15s;
         }
-        .card-title svg { color: #9ca3af; flex-shrink: 0; }
+        .card-title svg { color: var(--text-light); flex-shrink: 0; transition: color 0.15s; }
         .card-title:hover { color: #3b5bdb; }
         .card-title:hover svg { color: #3b5bdb; }
 
@@ -129,14 +202,16 @@ layout: null
         .tag-badge {
             font-size: 11px; font-weight: 500; padding: 3px 8px;
             border-radius: 5px; white-space: nowrap;
+            transition: background 0.3s, color 0.3s, border-color 0.3s;
         }
-        .tag-primary       { background: #e8f4fd; color: #2f87c8; border: 1px solid #c8e6f7; }
-        .tag-supplementary { background: #eafaf1; color: #27ae60; border: 1px solid #b8edcf; }
+        .tag-primary       { background: var(--tag-primary-bg); color: var(--tag-primary-color); border: 1px solid var(--tag-primary-border); }
+        .tag-supplementary { background: var(--tag-supp-bg); color: var(--tag-supp-color); border: 1px solid var(--tag-supp-border); }
 
         .file-chip {
-            font-size: 11px; color: #9ca3af;
-            background: #f3f4f6; border: 1px solid #e5e7eb; border-radius: 5px;
+            font-size: 11px; color: var(--text-muted);
+            background: var(--file-chip-bg); border: 1px solid var(--file-chip-border); border-radius: 5px;
             padding: 3px 7px; font-family: 'SF Mono', 'Consolas', monospace; white-space: nowrap;
+            transition: background 0.3s, border-color 0.3s;
         }
 
         /* 窄版：meta 換到標題下一行；badge 隱藏，chip 常駐 */
@@ -148,7 +223,7 @@ layout: null
 
         /* 說明：允許換行，避免截斷 */
         .card-desc {
-            font-size: 13px; color: #4b5563;
+            font-size: 13px; color: var(--text-secondary);
             margin-top: 6px; line-height: 1.65;
             word-break: break-word; overflow-wrap: anywhere;
         }
@@ -158,25 +233,26 @@ layout: null
         @media (max-width: 480px) { .sub-section { padding-left: 20px; } }
 
         .sub-section-label {
-            font-size: 11.5px; font-weight: 500; color: #9ca3af;
+            font-size: 11.5px; font-weight: 500; color: var(--text-light);
             letter-spacing: 0.04em; margin-bottom: 8px; margin-top: 4px;
         }
         .sub-link-list {
-            border: 1px solid #e5e7eb; border-radius: 8px; overflow: hidden;
-            background: #fff;
+            border: 1px solid var(--border-color); border-radius: 8px; overflow: hidden;
+            background: var(--bg-card);
+            transition: background 0.3s, border-color 0.3s;
         }
         /* 子連結行：寬版橫排，窄版換行 */
         .sub-link-row {
             display: flex; align-items: center; justify-content: space-between;
             flex-wrap: wrap; gap: 4px;
-            padding: 10px 14px; border-bottom: 1px solid #f0f2f5;
-            text-decoration: none; color: #374151; font-size: 13px;
-            transition: background .1s;
+            padding: 10px 14px; border-bottom: 1px solid var(--border-light);
+            text-decoration: none; color: var(--text-secondary); font-size: 13px;
+            transition: background .1s, border-color 0.3s;
         }
         .sub-link-row:last-child { border-bottom: none; }
-        .sub-link-row:hover { background: #f8f9fb; }
+        .sub-link-row:hover { background: var(--sub-link-hover); }
         .sub-link-left { display: flex; align-items: center; gap: 9px; min-width: 0; flex: 1; }
-        .sub-link-left svg { color: #9ca3af; flex-shrink: 0; }
+        .sub-link-left svg { color: var(--text-light); flex-shrink: 0; }
         .sub-link-text { color: #2563eb; font-weight: 500; word-break: break-word; }
         .sub-link-row:hover .sub-link-text { text-decoration: underline; }
 
@@ -184,9 +260,10 @@ layout: null
         .sub-badge {
             font-size: 11px; padding: 2px 8px; border-radius: 5px;
             font-weight: 500; white-space: nowrap; flex-shrink: 0;
+            transition: background 0.3s, color 0.3s, border-color 0.3s;
         }
-        .sub-badge.sub-primary       { background: #e8f4fd; color: #2f87c8; border: 1px solid #c8e6f7; }
-        .sub-badge.sub-supplementary { background: #eafaf1; color: #27ae60; border: 1px solid #b8edcf; }
+        .sub-badge.sub-primary       { background: var(--tag-primary-bg); color: var(--tag-primary-color); border: 1px solid var(--tag-primary-border); }
+        .sub-badge.sub-supplementary { background: var(--tag-supp-bg); color: var(--tag-supp-color); border: 1px solid var(--tag-supp-border); }
 
         /* 窄版：badge 換行後佔整行；再更窄只顯示一個 */
         @media (max-width: 480px) {
@@ -198,13 +275,13 @@ layout: null
         }
 
         /* ── 無結果 ── */
-        #noResults { padding: 48px 20px; text-align: center; color: #9ca3af; display: none; }
+        #noResults { padding: 48px 20px; text-align: center; color: var(--text-light); display: none; }
         #noResults p { font-size: 13px; margin-top: 8px; }
 
         /* ── Footer ── */
-        .footer { text-align: center; margin-top: 24px; font-size: 12px; color: #b0b7c3; }
-        .footer a { color: #9ca3af; text-decoration: none; }
-        .footer a:hover { color: #374151; }
+        .footer { text-align: center; margin-top: 24px; font-size: 12px; color: var(--text-muted); }
+        .footer a { color: var(--text-light); text-decoration: none; }
+        .footer a:hover { color: var(--text-secondary); }
 
         /* ── Header：回上層按鈕 ── */
         .header-card { justify-content: space-between; }
@@ -212,29 +289,42 @@ layout: null
         .back-btn {
             display: flex; align-items: center; gap: 5px;
             padding: 6px 11px; border-radius: 7px;
-            font-size: 12.5px; font-weight: 500; color: #6b7280;
-            background: #f3f4f6; border: 1px solid #e5e7eb;
+            font-size: 12.5px; font-weight: 500; color: var(--text-muted);
+            background: var(--file-chip-bg); border: 1px solid var(--file-chip-border);
             text-decoration: none; white-space: nowrap; flex-shrink: 0;
             transition: background .15s, color .15s, border-color .15s;
         }
-        .back-btn svg { color: #9ca3af; transition: color .15s; }
-        .back-btn:hover { background: #e8effe; color: #3b5bdb; border-color: #c5d2fb; }
+        .back-btn svg { color: var(--text-light); transition: color .15s; }
+        .back-btn:hover { background: var(--sub-link-hover); color: #3b5bdb; border-color: #c5d2fb; }
         .back-btn:hover svg { color: #3b5bdb; }
 
-        /* ── 回頁首懸浮按鈕 ── */
-        #backToTop {
-            position: fixed; bottom: 28px; right: 24px; z-index: 999;
-            width: 40px; height: 40px; border-radius: 50%;
-            background: #fff; border: 1px solid #dde1e7;
-            box-shadow: 0 2px 8px rgba(0,0,0,.10);
+        /* ── 懸浮按鈕核心配置 ── */
+        .floating-btn {
+            position: fixed; z-index: 999;
+            width: 44px; height: 44px; border-radius: 50%;
+            background: var(--bg-card); border: 1px solid var(--border-color);
+            box-shadow: var(--shadow-sm);
             display: flex; align-items: center; justify-content: center;
-            cursor: pointer; color: #6b7280;
+            cursor: pointer; color: var(--text-muted);
+            transition: background .2s, color .2s, border-color .2s, transform .2s, bottom .2s, opacity .2s;
+        }
+        .floating-btn:hover { background: #2563eb; color: #ffffff; border-color: #2563eb; }
+
+        /* 回頁首懸浮按鈕 */
+        #backToTop {
+            bottom: 32px; right: 32px;
             opacity: 0; pointer-events: none;
             transform: translateY(8px);
-            transition: opacity .22s, transform .22s, background .15s, color .15s, border-color .15s;
         }
         #backToTop.visible { opacity: 1; pointer-events: auto; transform: translateY(0); }
-        #backToTop:hover { background: #e8effe; color: #3b5bdb; border-color: #c5d2fb; }
+
+        /* 黑暗模式切換按鈕（預設置底，當回到頁首按鈕出現時會上移至 bottom: 88px） */
+        #darkModeToggle {
+            bottom: 32px; right: 32px;
+        }
+        #darkModeToggle.shifted {
+            bottom: 88px;
+        }
     </style>
 </head>
 <body>
@@ -293,16 +383,22 @@ layout: null
 
         <!-- 無結果提示 -->
         <div id="noResults">
-            <i data-lucide="search-x" style="width:26px;height:26px;margin:0 auto 10px;display:block;color:#d1d5db;"></i>
+            <i data-lucide="search-x" style="width:26px;height:26px;margin:0 auto 10px;display:block;color:var(--text-light);"></i>
             <p>找不到符合的結果，請試試其他關鍵字。</p>
         </div>
 
     </div>
 
-    <!-- 回頁首懸浮按鈕 -->
-    <button id="backToTop" aria-label="回到頁首" onclick="window.scrollTo({top:0,behavior:'smooth'})">
+    <!-- 回頁首按鈕 -->
+    <button id="backToTop" class="floating-btn" aria-label="回到頁首" onclick="window.scrollTo({top:0,behavior:'smooth'})">
         <i data-lucide="chevron-up" style="width:18px;height:18px;"></i>
     </button>
+
+    <!-- 黑暗模式切換按鈕（動態追蹤回到頁首狀態，並向上推移） -->
+    <button id="darkModeToggle" class="floating-btn" aria-label="切換黑暗模式" onclick="toggleDarkMode()">
+        <i id="themeIcon" data-lucide="moon" style="width:18px;height:18px;"></i>
+    </button>
+
     <div class="footer">
         <span>© {{ site.time | date: "%Y" }} {{ page.title }}</span>
         &nbsp;·&nbsp;<a href="{{ '/' | relative_url }}">回首頁</a>
@@ -310,6 +406,57 @@ layout: null
 </div>
 
 <script>
+    // ── 黑暗模式控制器（支援 Cookie 存取） ──
+    const htmlEl = document.documentElement;
+    const themeIcon = document.getElementById('themeIcon');
+
+    // 寫入 Cookie 輔助函數 (設定為 365 天過期，path=/ 代表整站同網域皆可存取)
+    function setCookie(name, value, days) {
+        let expires = "";
+        if (days) {
+            const date = new Date();
+            date.setTime(date.getTime() + (days * 24 * 60 * 60 * 1000));
+            expires = "; expires=" + date.toUTCString();
+        }
+        document.cookie = name + "=" + (value || "") + expires + "; path=/; SameSite=Lax";
+    }
+
+    // 讀取 Cookie 輔助函數
+    function getCookie(name) {
+        const nameEQ = name + "=";
+        const ca = document.cookie.split(';');
+        for (let i = 0; i < ca.length; i++) {
+            let c = ca[i];
+            while (c.charAt(0) === ' ') c = c.substring(1, c.length);
+            if (c.indexOf(nameEQ) === 0) return c.substring(nameEQ.length, c.length);
+        }
+        return null;
+    }
+
+    // 載入時初始化主題（優先權：Cookie -> LocalStorage -> 系統預設偏好）
+    const savedTheme = getCookie('theme') || localStorage.getItem('theme');
+    const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+    
+    if (savedTheme === 'dark' || (!savedTheme && prefersDark)) {
+        htmlEl.classList.add('dark');
+        themeIcon.setAttribute('data-lucide', 'sun');
+    } else {
+        htmlEl.classList.remove('dark');
+        themeIcon.setAttribute('data-lucide', 'moon');
+    }
+
+    function toggleDarkMode() {
+        const isDark = htmlEl.classList.toggle('dark');
+        const themeValue = isDark ? 'dark' : 'light';
+        
+        // 同步寫入 Cookie 與 LocalStorage
+        setCookie('theme', themeValue, 365);
+        localStorage.setItem('theme', themeValue);
+        
+        themeIcon.setAttribute('data-lucide', isDark ? 'sun' : 'moon');
+        lucide.createIcons();
+    }
+
     // ── Liquid 注入資料 ──────────────────────────────────────────
     const currentPageDir = {{ page.dir | jsonify }};
     const siteBaseUrl    = {{ site.baseurl | default: "" | jsonify }};
@@ -448,11 +595,15 @@ layout: null
 
     run();
 
-    // ── 回頁首按鈕 ───────────────────────────────────────────────
+    // ── 滾動事件（回到頁首與黑暗模式按鈕位移） ──
     (function() {
-        const fab = document.getElementById('backToTop');
+        const backToTopBtn = document.getElementById('backToTop');
+        const darkModeBtn = document.getElementById('darkModeToggle');
+
         window.addEventListener('scroll', function() {
-            fab.classList.toggle('visible', window.scrollY > 240);
+            const isScrolled = window.scrollY > 240;
+            backToTopBtn.classList.toggle('visible', isScrolled);
+            darkModeBtn.classList.toggle('shifted', isScrolled);
         }, { passive: true });
     })();
 </script>
