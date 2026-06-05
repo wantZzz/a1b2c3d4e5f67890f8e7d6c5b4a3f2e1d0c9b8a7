@@ -12,9 +12,54 @@ title: "專案文件與知識庫門戶"
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
+        /* ── CSS 變數定義（支援亮色與暗色模式切換） ── */
+        :root {
+            --bg-body: #f4f6f9;
+            --bg-card: #ffffff;
+            --text-primary: #1e293b;
+            --text-secondary: #475569;
+            --text-muted: #64748b;
+            --border-color: #e2e8f0;
+            --border-light: #f1f5f9;
+            
+            --bg-stat-icon-blue: #eff6ff;
+            --bg-stat-icon-green: #f0fdf4;
+            --bg-stat-icon-purple: #faf5ff;
+            
+            --shadow-sm: 0 1px 3px rgba(0,0,0,0.02);
+            --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.02), 0 2px 4px -1px rgba(0, 0, 0, 0.01);
+            --shadow-lg: 0 10px 25px -5px rgba(59, 130, 246, 0.2);
+            
+            --icon-default-bg: #eff6ff;
+            --icon-default-color: #2563eb;
+            --navbar-border: #e2e8f0;
+        }
+
+        :root.dark {
+            --bg-body: #0f172a;
+            --bg-card: #1e293b;
+            --text-primary: #f8fafc;
+            --text-secondary: #cbd5e1;
+            --text-muted: #94a3b8;
+            --border-color: #334155;
+            --border-light: #1e293b;
+            
+            --bg-stat-icon-blue: rgba(37, 99, 235, 0.15);
+            --bg-stat-icon-green: rgba(22, 163, 74, 0.15);
+            --bg-stat-icon-purple: rgba(147, 51, 234, 0.15);
+            
+            --shadow-sm: 0 1px 3px rgba(0,0,0,0.2);
+            --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.3), 0 2px 4px -1px rgba(0, 0, 0, 0.2);
+            --shadow-lg: 0 10px 25px -5px rgba(0, 0, 0, 0.5);
+            
+            --icon-default-bg: rgba(37, 99, 235, 0.15);
+            --icon-default-color: #60a5fa;
+            --navbar-border: #1e293b;
+        }
+
         *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
         * { font-family: 'Noto Sans TC', -apple-system, BlinkMacSystemFont, sans-serif; }
-        body { background: #f4f6f9; color: #1e293b; overflow-x: hidden; }
+        body { background: var(--bg-body); color: var(--text-primary); overflow-x: hidden; transition: background 0.3s, color 0.3s; }
 
         /* 全域容器 */
         .portal-wrapper { max-width: 1200px; margin: 0 auto; padding: 0 20px 80px; }
@@ -22,18 +67,19 @@ title: "專案文件與知識庫門戶"
         /* ── 頂部 Navigation Bar ── */
         .navbar {
             display: flex; align-items: center; justify-content: space-between;
-            padding: 18px 0; border-bottom: 1px solid #e2e8f0; margin-bottom: 24px;
+            padding: 18px 0; border-bottom: 1px solid var(--navbar-border); margin-bottom: 24px;
         }
-        .nav-logo { display: flex; align-items: center; gap: 10px; font-weight: 700; font-size: 18px; color: #1e3a8a; }
+        .nav-logo { display: flex; align-items: center; gap: 10px; font-weight: 700; font-size: 18px; color: var(--text-primary); }
+        .nav-logo i { color: #2563eb; }
         .nav-links { display: flex; gap: 20px; list-style: none; }
-        .nav-link { font-size: 14px; color: #475569; text-decoration: none; font-weight: 500; transition: color .2s; }
+        .nav-link { font-size: 14px; color: var(--text-secondary); text-decoration: none; font-weight: 500; transition: color .2s; }
         .nav-link:hover { color: #2563eb; }
 
         /* ── 首頁專屬 Hero 橫幅 ── */
         .hero-banner {
             background: linear-gradient(135deg, #1e3a8a 0%, #3b82f6 100%);
             border-radius: 16px; padding: 48px 32px; text-align: center; color: #ffffff;
-            box-shadow: 0 10px 25px -5px rgba(59, 130, 246, 0.2);
+            box-shadow: var(--shadow-lg);
             margin-bottom: 32px; position: relative; overflow: hidden;
         }
         .hero-banner::before {
@@ -54,17 +100,25 @@ title: "專案文件與知識庫門戶"
             display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-bottom: 32px;
         }
         .stat-card {
-            background: #ffffff; border: 1px solid #e2e8f0; border-radius: 12px; padding: 18px 20px;
-            display: flex; align-items: center; gap: 14px; box-shadow: 0 1px 3px rgba(0,0,0,0.02);
+            background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 12px; padding: 18px 20px;
+            display: flex; align-items: center; gap: 14px; box-shadow: var(--shadow-sm);
+            transition: background 0.3s, border-color 0.3s;
         }
         .stat-icon {
             width: 44px; height: 44px; border-radius: 10px; display: flex; align-items: center; justify-content: center;
         }
-        .stat-icon-blue { background: #eff6ff; color: #2563eb; }
-        .stat-icon-green { background: #f0fdf4; color: #16a34a; }
-        .stat-icon-purple { background: #faf5ff; color: #9333ea; }
-        .stat-num { font-size: 20px; font-weight: 700; color: #0f172a; }
-        .stat-lbl { font-size: 12px; color: #64748b; margin-top: 1px; }
+        .stat-icon-blue { background: var(--bg-stat-icon-blue); color: #2563eb; }
+        .stat-icon-green { background: var(--bg-stat-icon-green); color: #16a34a; }
+        .stat-icon-purple { background: var(--bg-stat-icon-purple); color: #9333ea; }
+        
+        .stat-info-container {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+        }
+        .stat-num { font-size: 20px; font-weight: 700; color: var(--text-primary); }
+        .stat-lbl { font-size: 12px; color: var(--text-muted); margin-top: 1px; }
+        .stat-commit { font-size: 11px; color: var(--text-muted); font-family: 'SF Mono', 'Consolas', monospace; font-weight: 500; }
 
         @media (max-width: 768px) {
             .stats-row { grid-template-columns: 1fr; }
@@ -73,13 +127,14 @@ title: "專案文件與知識庫門戶"
         /* ── 主導覽控制區 ── */
         .main-control-bar {
             display: flex; align-items: center; justify-content: space-between;
-            margin-bottom: 24px; padding-bottom: 12px; border-bottom: 1px solid #e2e8f0;
+            margin-bottom: 24px; padding-bottom: 12px; border-bottom: 1px solid var(--border-color);
         }
         .section-indicator-title {
-            display: flex; align-items: center; gap: 8px; font-size: 16px; font-weight: 700; color: #0f172a;
+            display: flex; align-items: center; gap: 8px; font-size: 16px; font-weight: 700; color: var(--text-primary);
         }
         .results-indicator {
-            font-size: 13px; color: #64748b; font-weight: 500; background: #e2e8f0; padding: 3px 10px; border-radius: 20px;
+            font-size: 13px; color: var(--text-secondary); font-weight: 500; background: var(--border-color); padding: 3px 10px; border-radius: 20px;
+            transition: background 0.3s, color 0.3s;
         }
 
         /* ── 首頁子目錄卡片網格 ── */
@@ -91,19 +146,19 @@ title: "專案文件與知識庫門戶"
         }
 
         .dir-card {
-            background: #ffffff; border: 1px solid #e2e8f0; border-radius: 14px;
+            background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 14px;
             overflow: hidden; display: flex; flex-direction: column;
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.02), 0 2px 4px -1px rgba(0, 0, 0, 0.01);
-            transition: transform .2s, box-shadow .2s;
+            box-shadow: var(--shadow-md);
+            transition: transform .2s, box-shadow .2s, background 0.3s, border-color 0.3s;
         }
         .dir-card:hover {
             transform: translateY(-4px);
-            box-shadow: 0 12px 20px -8px rgba(0, 0, 0, 0.08);
+            box-shadow: 0 12px 20px -8px rgba(0, 0, 0, 0.15);
         }
 
         /* 卡片頂部 */
         .dir-header {
-            padding: 20px 20px 16px; border-bottom: 1px solid #f1f5f9;
+            padding: 20px 20px 16px; border-bottom: 1px solid var(--border-light);
             display: flex; align-items: flex-start; justify-content: space-between; gap: 12px;
         }
         .dir-title-area { display: flex; align-items: center; gap: 12px; min-width: 0; }
@@ -112,54 +167,67 @@ title: "專案文件與知識庫門戶"
             width: 38px; height: 38px; border-radius: 9px;
             display: flex; align-items: center; justify-content: center; flex-shrink: 0;
         }
-        .icon-default { background: #eff6ff; color: #2563eb; }
+        .icon-default { background: var(--icon-default-bg); color: var(--icon-default-color); transition: background 0.3s, color 0.3s; }
 
         .dir-title {
-            font-size: 16px; font-weight: 700; color: #0f172a; text-decoration: none;
+            font-size: 16px; font-weight: 700; color: var(--text-primary); text-decoration: none;
             display: flex; align-items: center; gap: 4px; line-height: 1.4;
         }
         .dir-title:hover { color: #2563eb; }
         .dir-title svg { opacity: 0; transition: opacity .15s; color: #2563eb; }
         .dir-card:hover .dir-title svg { opacity: 1; }
 
-        .dir-path { font-size: 12px; color: #64748b; font-family: 'SF Mono', monospace; margin-top: 2px; }
+        .dir-path { font-size: 12px; color: var(--text-muted); font-family: 'SF Mono', monospace; margin-top: 2px; }
 
         /* 卡片主體 */
         .dir-body { padding: 18px 20px; flex: 1; display: flex; flex-direction: column; }
-        .dir-desc { font-size: 13px; color: #475569; line-height: 1.6; }
+        .dir-desc { font-size: 13px; color: var(--text-secondary); line-height: 1.6; }
 
         /* ──【保留樣式】未來若需要「最近新增」或「精選收錄」可用此區塊 ── */
-        .recent-files-box { margin-top: 16px; border-top: 1px dashed #e2e8f0; padding-top: 14px; display: none; }
-        .files-header { font-size: 11.5px; font-weight: 600; color: #94a3b8; letter-spacing: 0.5px; margin-bottom: 8px; }
+        .recent-files-box { margin-top: 16px; border-top: 1px dashed var(--border-color); padding-top: 14px; display: none; }
+        .files-header { font-size: 11.5px; font-weight: 600; color: var(--text-muted); letter-spacing: 0.5px; margin-bottom: 8px; }
         .file-list { display: flex; flex-direction: column; gap: 6px; }
         .file-item {
             display: flex; align-items: center; justify-content: space-between;
-            padding: 6px 10px; border-radius: 6px; background: #f8fafc;
-            border: 1px solid #f1f5f9; text-decoration: none; font-size: 12.5px; color: #334155;
+            padding: 6px 10px; border-radius: 6px; background: var(--bg-body);
+            border: 1px solid var(--border-color); text-decoration: none; font-size: 12.5px; color: var(--text-secondary);
             transition: all .15s;
         }
-        .file-item:hover { background: #f1f5f9; border-color: #cbd5e1; color: #2563eb; }
+        .file-item:hover { background: var(--border-color); color: #2563eb; }
         .file-left { display: flex; align-items: center; gap: 8px; min-width: 0; }
-        .file-left svg { color: #94a3b8; flex-shrink: 0; }
+        .file-left svg { color: var(--text-muted); flex-shrink: 0; }
         .file-name { font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 
         /* ── Footer ── */
-        .footer-sec { border-top: 1px solid #e2e8f0; padding: 32px 0; text-align: center; font-size: 12.5px; color: #64748b; margin-top: 48px; }
-        .footer-sec a { color: #3b82f6; text-decoration: none; margin: 0 8px; }
-        .footer-sec a:hover { text-decoration: underline; }
+        .footer-sec { border-top: 1px solid var(--border-color); padding: 32px 0; text-align: center; font-size: 12.5px; color: var(--text-muted); margin-top: 48px; }
 
-        /* ── 回頁首懸浮按鈕 ── */
-        #backToTop {
-            position: fixed; bottom: 32px; right: 32px; z-index: 999;
+        /* ── 懸浮按鈕核心配置 ── */
+        .floating-btn {
+            position: fixed; z-index: 999;
             width: 44px; height: 44px; border-radius: 50%;
-            background: #ffffff; border: 1px solid #e2e8f0;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+            background: var(--bg-card); border: 1px solid var(--border-color);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.12);
             display: flex; align-items: center; justify-content: center;
-            cursor: pointer; color: #475569; opacity: 0; pointer-events: none;
-            transform: translateY(8px); transition: all .2s;
+            cursor: pointer; color: var(--text-secondary);
+            transition: background .2s, color .2s, border-color .2s, transform .2s, bottom .2s, opacity .2s;
+        }
+        .floating-btn:hover { background: #2563eb; color: #ffffff; border-color: #2563eb; }
+
+        /* 回頁首懸浮按鈕 */
+        #backToTop {
+            bottom: 32px; right: 32px;
+            opacity: 0; pointer-events: none;
+            transform: translateY(8px);
         }
         #backToTop.visible { opacity: 1; pointer-events: auto; transform: translateY(0); }
-        #backToTop:hover { background: #3b82f6; color: #ffffff; border-color: #3b82f6; }
+
+        /* 黑暗模式切換按鈕（預設置底，當回到頁首按鈕出現時會上移至 bottom: 88px） */
+        #darkModeToggle {
+            bottom: 32px; right: 32px;
+        }
+        #darkModeToggle.shifted {
+            bottom: 88px;
+        }
     </style>
 </head>
 <body>
@@ -180,13 +248,17 @@ title: "專案文件與知識庫門戶"
     <!-- 頂部導航欄 -->
     <nav class="navbar">
         <div class="nav-logo">
-            <i data-lucide="compass" style="width:22px;height:22px;color:#2563eb;"></i>
+            <i data-lucide="compass" style="width:22px;height:22px;"></i>
             <span>{{ page.title }}</span>
         </div>
         <ul class="nav-links">
-            <li><a href="{{ '/' | relative_url }}" class="nav-link">首頁</a></li>
-            <li><a href="#" class="nav-link" onclick="alert('說明文件尚未發布'); return false;">開發規範</a></li>
-            <li><a href="#" class="nav-link" onclick="window.scrollTo({top: document.body.scrollHeight, behavior: 'smooth'}); return false;">聯繫團隊</a></li>
+            <li>
+                <!-- 動態顯示 GitHub Repository NWO -->
+                <a href="https://github.com/{{ site.repository_nwo | default: 'github/repository' }}" target="_blank" class="nav-link" style="display: flex; align-items: center; gap: 6px;">
+                    <i data-lucide="github" style="width:16px;height:16px;"></i>
+                    <span>{{ site.repository_nwo | default: "儲存庫連結" }}</span>
+                </a>
+            </li>
         </ul>
     </nav>
 
@@ -203,7 +275,7 @@ title: "專案文件與知識庫門戶"
             <div class="stat-icon stat-icon-blue">
                 <i data-lucide="folder-open" style="width:20px;height:20px;"></i>
             </div>
-            <div>
+            <div class="stat-info-container">
                 <div class="stat-num">{{ category_count }} 個</div>
                 <div class="stat-lbl">子目錄</div>
             </div>
@@ -212,18 +284,26 @@ title: "專案文件與知識庫門戶"
             <div class="stat-icon stat-icon-green">
                 <i data-lucide="file-check-2" style="width:20px;height:20px;"></i>
             </div>
-            <div>
+            <div class="stat-info-container">
                 <div class="stat-num">{{ total_articles }} 篇</div>
                 <div class="stat-lbl">收錄主題文章</div>
             </div>
         </div>
+        <!-- 結合最後更新日期與 Commit SHA -->
         <div class="stat-card">
             <div class="stat-icon stat-icon-purple">
                 <i data-lucide="activity" style="width:20px;height:20px;"></i>
             </div>
-            <div>
-                <div class="stat-num">{{ site.time | date: "%Y/%m" }}</div>
-                <div class="stat-lbl">最後更新版本</div>
+            <div class="stat-info-container">
+                <div class="stat-num" style="font-size: 18px;">{{ site.time | date: "%Y/%m/%d %H:00" }}</div>
+                <div class="stat-lbl" style="display: flex; align-items: center; gap: 4px;">
+                    <span>最後更新版本</span>
+                    {% if site.github.build_revision %}
+                    <span class="stat-commit">({{ site.github.build_revision | slice: 0, 7 }})</span>
+                    {% else %}
+                    <span class="stat-commit">(dev-local)</span>
+                    {% endif %}
+                </div>
             </div>
         </div>
     </div>
@@ -231,7 +311,7 @@ title: "專案文件與知識庫門戶"
     <!-- 標題與數據控制列 -->
     <div class="main-control-bar">
         <div class="section-indicator-title">
-            <i data-lucide="folder" style="width:18px;height:18px;color:#475569;"></i>
+            <i data-lucide="folder" style="width:18px;height:18px;color:var(--text-secondary);"></i>
             <span>所有子目錄索引</span>
         </div>
         <div class="results-indicator" id="countBadge">{{ category_count }} 筆項目</div>
@@ -243,21 +323,44 @@ title: "專案文件與知識庫門戶"
 </div>
 
 <!-- 回頁首按鈕 -->
-<button id="backToTop" aria-label="回到頁首" onclick="window.scrollTo({top:0,behavior:'smooth'})">
+<button id="backToTop" class="floating-btn" aria-label="回到頁首" onclick="window.scrollTo({top:0,behavior:'smooth'})">
     <i data-lucide="arrow-up" style="width:18px;height:18px;"></i>
+</button>
+
+<!-- 黑暗模式切換按鈕（動態追蹤回到頁首狀態，並向上推移） -->
+<button id="darkModeToggle" class="floating-btn" aria-label="切換黑暗模式" onclick="toggleDarkMode()">
+    <i id="themeIcon" data-lucide="moon" style="width:18px;height:18px;"></i>
 </button>
 
 <!-- 頁尾 -->
 <footer class="footer-sec">
-    <div>© {{ site.time | date: "%Y" }} {{ page.title }} · 基於靜態化子目錄結構建立</div>
-    <div style="margin-top: 8px;">
-        <a href="{{ '/' | relative_url }}">回門戶首頁</a>|
-        <a href="#" onclick="alert('即將跳轉說明文件'); return false;">Jekyll 配置規範</a>|
-        <a href="https://github.com" target="_blank">Git 儲存庫</a>
-    </div>
+    <div>Copyright © {{ site.time | date: "%Y" }} XXX. All rights reserved. Hosted on GitHub Pages as a static website.</div>
 </footer>
 
 <script>
+    // ── 黑暗模式控制器 ──
+    const htmlEl = document.documentElement;
+    const themeIcon = document.getElementById('themeIcon');
+
+    // 載入時初始化主題
+    const savedTheme = localStorage.getItem('theme');
+    const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+    
+    if (savedTheme === 'dark' || (!savedTheme && prefersDark)) {
+        htmlEl.classList.add('dark');
+        themeIcon.setAttribute('data-lucide', 'sun');
+    } else {
+        htmlEl.classList.remove('dark');
+        themeIcon.setAttribute('data-lucide', 'moon');
+    }
+
+    function toggleDarkMode() {
+        const isDark = htmlEl.classList.toggle('dark');
+        localStorage.setItem('theme', isDark ? 'dark' : 'light');
+        themeIcon.setAttribute('data-lucide', isDark ? 'sun' : 'moon');
+        lucide.createIcons();
+    }
+
     // ── Jekyll 後端自動生成子目錄資訊陣列 ──────────────────
     const allPagesData = [];
 
@@ -318,7 +421,7 @@ title: "專案文件與知識庫門戶"
                                     <i data-lucide="file-text" style="width:13px;height:13px;"></i>
                                     <span class="file-name">${esc(rel.title)}</span>
                                 </div>
-                                <i data-lucide="chevron-right" style="width:12px;height:12px;color:#94a3b8;"></i>
+                                <i data-lucide="chevron-right" style="width:12px;height:12px;color:var(--text-muted);"></i>
                             </a>
                         `).join('')}
                     </div>
@@ -358,11 +461,15 @@ title: "專案文件與知識庫門戶"
     allPagesData.forEach(p => grid.appendChild(buildDirCard(p)));
     lucide.createIcons();
 
-    // ── 回頁首按鈕 ───────────────────────────────────────────────
+    // ── 滾動事件（回到頁首與黑暗模式位移） ──
     (function() {
-        const fab = document.getElementById('backToTop');
+        const backToTopBtn = document.getElementById('backToTop');
+        const darkModeBtn = document.getElementById('darkModeToggle');
+
         window.addEventListener('scroll', function() {
-            fab.classList.toggle('visible', window.scrollY > 300);
+            const isScrolled = window.scrollY > 300;
+            backToTopBtn.classList.toggle('visible', isScrolled);
+            darkModeBtn.classList.toggle('shifted', isScrolled);
         }, { passive: true });
     })();
 </script>
