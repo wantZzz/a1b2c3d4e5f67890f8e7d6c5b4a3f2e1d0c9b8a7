@@ -559,7 +559,7 @@ layout: null
     const titleMap = {};
     const roleMap  = {};
     {% for p in site.pages %}
-        {% if p.dir == page.dir and p.url != page.url %}
+        {% if p.dir == page.dir and p.url != page.url and p.type != "redirect_page"%}
         titleMap[{{ p.name | jsonify }}] = {{ p.title | default: p.name | jsonify }};
         roleMap[{{ p.name | jsonify }}]  = {{ p.role  | default: "primary" | jsonify }};
         {% endif %}
@@ -567,7 +567,7 @@ layout: null
 
     const allPagesData = [];
     {% for p in site.pages %}
-        {% if p.dir == page.dir and p.url != page.url %}
+        {% if p.dir == page.dir and p.url != page.url and p.type != "redirect_page"%}
         allPagesData.push({
             name:        {{ p.name        | jsonify }},
             url:         {{ p.url         | prepend: site.baseurl | jsonify }},

@@ -253,7 +253,7 @@ description: "收錄並歸檔所有學習過程中用於輔助理解產生的多
 
 {% assign total_articles = 0 %}
 {% for p in site.pages %}
-    {% if p.type != "category_index" and p.url != "/" and p.url != "/index.html" and p.dir != "/" %}
+    {% if p.type != "category_index" and p.url != "/" and p.url != "/index.html" and p.dir != "/" and p.type != "redirect_page"%}
         {% assign total_articles = total_articles | plus: 1 %}
     {% endif %}
 {% endfor %}
