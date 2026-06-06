@@ -198,6 +198,7 @@ layout: null
         .card-meta {
             display: flex; align-items: center; gap: 5px;
             flex-shrink: 0; padding-top: 2px;
+            flex-wrap: wrap;
         }
         .tag-badge {
             font-size: 11px; font-weight: 500; padding: 3px 8px;
@@ -206,6 +207,13 @@ layout: null
         }
         .tag-primary       { background: var(--tag-primary-bg); color: var(--tag-primary-color); border: 1px solid var(--tag-primary-border); }
         .tag-supplementary { background: var(--tag-supp-bg); color: var(--tag-supp-color); border: 1px solid var(--tag-supp-border); }
+        
+        /* 額外擴充自訂 tag 樣式 */
+        .tag-custom {
+            background: var(--file-chip-bg);
+            color: var(--text-secondary);
+            border: 1px solid var(--file-chip-border);
+        }
 
         .file-chip {
             font-size: 11px; color: var(--text-muted);
@@ -477,9 +485,10 @@ layout: null
             name:        {{ p.name        | jsonify }},
             url:         {{ p.url         | prepend: site.baseurl | jsonify }},
             title:       {{ p.title       | default: p.name | jsonify }},
-            description: {{ p.description | default: "" | jsonify }},
+            description: {{ p.description | default: "沒有描述" | jsonify }},
             role:        {{ p.role        | default: "primary" | jsonify }},
-            related:     {% if p.related %}{{ p.related | jsonify }}{% else %}[]{% endif %}
+            related:     {% if p.related %}{{ p.related | jsonify }}{% else %}[]{% endif %},
+            tags:        {% if p.tags %}{{ p.tags | jsonify }}{% else %}[]{% endif %}
         });
         {% endif %}
     {% endfor %}
@@ -523,9 +532,15 @@ layout: null
                 </div>
             </div>` : '';
 
-        const descHTML = p.description
-            ? `<div class="card-desc">${esc(p.description)}</div>` : '';
+        // 處理空白或缺失的描述為「沒有描述」
+        const rawDesc = p.description ? p.description.trim() : '';
+        const descText = rawDesc !== '' ? rawDesc : '沒有描述';
+        const descHTML = `<div class="card-desc">${esc(descText)}</div>`;
 
+        // 處理自訂 Tags 標籤
+        const tagsHTML = (p.tags && p.tags.length) ? p.tags.map(tag => {
+            return `<span class="tag-badge tag-custom">${esc(tag)}</span>`;
+        }).join('') : '';
         const wrap = document.createElement('div');
         wrap.className = 'card-wrap';
         wrap.dataset.tab   = p.role || 'primary';
@@ -542,6 +557,7 @@ layout: null
                             <i data-lucide="arrow-up-right" style="width:14px;height:14px;"></i>
                         </a>
                         <div class="card-meta">
+						     ${tagsHTML}
                             <span class="tag-badge ${cfg.badgeClass}">${cfg.label}</span>
                             <span class="file-chip">${esc(filename)}</span>
                         </div>
