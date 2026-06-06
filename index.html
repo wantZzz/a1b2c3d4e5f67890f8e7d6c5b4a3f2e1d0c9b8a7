@@ -12,6 +12,11 @@ description: "收錄並歸檔所有學習過程中用於輔助理解產生的多
     <script src="https://unpkg.com/lucide@latest"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+	<meta property="og:site_name" content="{{ site.title }}" />
+	<meta property="og:type" content="website" />
+	<meta property="og:title" content="首頁 - {{ site.github.repository_nwo }}" />
+	<meta property="og:description" content="{{ page.description | default: site.description | strip_html | strip_newlines | truncate: 160 }}" />
+	<meta property="og:url" content="{{ page.url | absolute_url }}" />
     <style>
         /* ── CSS 變數定義（支援亮色與暗色模式切換） ── */
         :root {
@@ -342,7 +347,7 @@ description: "收錄並歸檔所有學習過程中用於輔助理解產生的多
 
 <!-- 頁尾 -->
 <footer class="footer-sec">
-    <div>Copyright © {{ site.time | date: "%Y" }} XXX. All rights reserved. Hosted on GitHub Pages as a static website.</div>
+    <div>Copyright © {{ site.time | date: "%Y" }} {{ site.github.owner_name }}. All rights reserved. Hosted on GitHub Pages as a static website.</div>
 </footer>
 
 <script>
