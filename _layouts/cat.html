@@ -102,12 +102,22 @@ layout: null
             transition: background 0.3s, border-color 0.3s;
         }
 
-        /* ── Tab 列 ── */
+        /* ── Tab 列（支援左右彈性佈局） ── */
         .tab-bar {
-            display: flex; border-bottom: 1px solid var(--border-light);
-            padding: 0 4px; gap: 2px; background: var(--bg-card);
+            display: flex; align-items: center; justify-content: space-between;
+            border-bottom: 1px solid var(--border-light);
+            padding: 0 16px; background: var(--bg-card);
             transition: background 0.3s, border-color 0.3s;
+            gap: 12px;
         }
+        .tab-bar-right {
+            display: flex; align-items: center; flex-shrink: 0;
+        }
+        .tab-bar-tabs {
+            display: flex; gap: 2px; overflow-x: auto; scrollbar-width: none;
+        }
+        .tab-bar-tabs::-webkit-scrollbar { display: none; }
+		
         .tab-btn {
             display: flex; align-items: center; gap: 6px;
             padding: 12px 14px 11px; font-size: 13.5px; font-weight: 500;
@@ -119,6 +129,32 @@ layout: null
         .tab-btn:hover { color: var(--text-secondary); }
         .tab-btn.active { color: var(--text-primary); border-bottom-color: #4a6cf7; font-weight: 600; }
 
+        /* 自訂顯示標籤勾選按鈕樣式 */
+        .tag-toggle-label {
+            display: flex; align-items: center; gap: 6px;
+            font-size: 12.5px; font-weight: 500; color: var(--text-muted);
+            cursor: pointer; user-select: none; transition: color 0.15s;
+        }
+        .tag-toggle-label:hover { color: var(--text-secondary); }
+        .tag-toggle-label input[type="checkbox"] {
+            appearance: none; -webkit-appearance: none;
+            width: 15px; height: 15px; border: 1.5px solid var(--border-color);
+            border-radius: 4px; background: var(--bg-card);
+            cursor: pointer; display: grid; place-content: center;
+            transition: background 0.15s, border-color 0.15s;
+        }
+        .tag-toggle-label input[type="checkbox"]:hover {
+            border-color: #4a6cf7;
+        }
+        .tag-toggle-label input[type="checkbox"]:checked {
+            background: #4a6cf7; border-color: #4a6cf7;
+        }
+        .tag-toggle-label input[type="checkbox"]:checked::before {
+            content: ""; width: 8px; height: 8px;
+            clip-path: polygon(14% 44%, 0 58%, 33% 90%, 100% 16%, 86% 2%, 33% 62%);
+            background: #ffffff;
+        }
+		
         /* ── 區塊標題列 ── */
         .section-header {
             display: flex; align-items: center; justify-content: space-between;
@@ -222,6 +258,11 @@ layout: null
             transition: background 0.3s, border-color 0.3s;
         }
 
+        /* 隱藏標籤樣式：當 body 套用此 class 時，將隱藏 card-meta 下的所有 tag-badge（包含 role 與 custom 標籤） */
+        body.hide-tags .tag-badge {
+            display: none !important;
+        }
+		
         /* 窄版：meta 換到標題下一行；badge 隱藏，chip 常駐 */
         @media (max-width: 480px) {
             .card-title-row  { flex-direction: column; gap: 5px; }
@@ -358,17 +399,25 @@ layout: null
     <!-- 主內容卡片 -->
     <div class="content-card">
 
-        <!-- Tab 列 -->
-        <div class="tab-bar" id="mainTabs">
-            <button class="tab-btn active" data-tab="all">
-                <i data-lucide="align-justify" style="width:14px;height:14px;"></i>所有內容
-            </button>
-            <button class="tab-btn" data-tab="primary">
-                <i data-lucide="bookmark" style="width:14px;height:14px;"></i>主要內容
-            </button>
-            <button class="tab-btn" data-tab="supplementary">
-                <i data-lucide="book-open" style="width:14px;height:14px;"></i>補充資料
-            </button>
+        <!-- Tab 列（整合勾選框，勾選框移至右側） -->
+        <div class="tab-bar">
+            <div class="tab-bar-tabs" id="mainTabs">
+                <button class="tab-btn active" data-tab="all">
+                    <i data-lucide="align-justify" style="width:14px;height:14px;"></i>所有內容
+                </button>
+                <button class="tab-btn" data-tab="primary">
+                    <i data-lucide="bookmark" style="width:14px;height:14px;"></i>主要內容
+                </button>
+                <button class="tab-btn" data-tab="supplementary">
+                    <i data-lucide="book-open" style="width:14px;height:14px;"></i>補充資料
+                </button>
+            </div>
+            <div class="tab-bar-right">
+                <label class="tag-toggle-label">
+                    <input type="checkbox" id="tagToggleCheckbox" checked onchange="toggleTags(this.checked)">
+                    <span>顯示標籤</span>
+                </label>
+            </div>
         </div>
 
         <!-- 區塊標題 + 搜尋 -->
@@ -464,6 +513,28 @@ layout: null
         lucide.createIcons();
     }
 
+    // ── 顯示/隱藏卡片標籤 (Tags) 控制器 ──
+    const tagCheckbox = document.getElementById('tagToggleCheckbox');
+    const savedTagsState = getCookie('show-tags') || localStorage.getItem('show-tags');
+    
+    // 預設為 true（開啟狀態）
+    const isTagsVisible = savedTagsState !== 'false';
+    tagCheckbox.checked = isTagsVisible;
+    if (!isTagsVisible) {
+        document.body.classList.add('hide-tags');
+    }
+
+    function toggleTags(visible) {
+        if (visible) {
+            document.body.classList.remove('hide-tags');
+            setCookie('show-tags', 'true', 365);
+            localStorage.setItem('show-tags', 'true');
+        } else {
+            document.body.classList.add('hide-tags');
+            setCookie('show-tags', 'false', 365);
+            localStorage.setItem('show-tags', 'false');
+        }
+    }
     // ── Liquid 注入資料 ──────────────────────────────────────────
     const currentPageDir = {{ page.dir | jsonify }};
     const siteBaseUrl    = {{ site.baseurl | default: "" | jsonify }};
