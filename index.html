@@ -12,11 +12,12 @@ description: "收錄並歸檔所有學習過程中用於輔助理解產生的多
     <script src="https://unpkg.com/lucide@latest"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-	<meta property="og:site_name" content="{{ site.title }}" />
+	<meta property="og:site_name" content="{{ site.github.repository_nwo }} - github.io" />
 	<meta property="og:type" content="website" />
-	<meta property="og:title" content="首頁 - {{ site.github.repository_nwo }}" />
+	<meta property="og:title" content="首頁 - {{ site.github.repository_name }}" />
 	<meta property="og:description" content="{{ page.description | default: site.description | strip_html | strip_newlines | truncate: 160 }}" />
 	<meta property="og:url" content="{{ page.url | absolute_url }}" />
+	<meta property="og:image" content="https://github.com/{{ github_username }}.png?size=630" />
     <style>
         /* ── CSS 變數定義（支援亮色與暗色模式切換） ── */
         :root {
