@@ -41,6 +41,7 @@ layout: null
             --file-chip-border: #e5e7eb;
             --sub-link-hover: #f8f9fb;
             --shadow-sm: 0 2px 8px rgba(0,0,0,.10);
+            --focus-ring: #4a6cf7;
         }
 
         :root.dark {
@@ -72,6 +73,7 @@ layout: null
             --file-chip-border: #334155;
             --sub-link-hover: #1e293b;
             --shadow-sm: 0 4px 12px rgba(0,0,0,0.3);
+            --focus-ring: #6366f1;
         }
 
         *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -102,22 +104,15 @@ layout: null
             transition: background 0.3s, border-color 0.3s;
         }
 
-        /* ── Tab 列（支援左右彈性佈局） ── */
+        /* ── Tab 列 ── */
         .tab-bar {
-            display: flex; align-items: center; justify-content: space-between;
+            display: flex; justify-content: space-between; align-items: center;
             border-bottom: 1px solid var(--border-light);
-            padding: 0 16px; background: var(--bg-card);
+            padding: 0 12px 0 4px; background: var(--bg-card);
             transition: background 0.3s, border-color 0.3s;
-            gap: 12px;
+            flex-wrap: wrap; gap: 8px;
         }
-        .tab-bar-right {
-            display: flex; align-items: center; flex-shrink: 0;
-        }
-        .tab-bar-tabs {
-            display: flex; gap: 2px; overflow-x: auto; scrollbar-width: none;
-        }
-        .tab-bar-tabs::-webkit-scrollbar { display: none; }
-		
+        .tab-group { display: flex; gap: 2px; }
         .tab-btn {
             display: flex; align-items: center; gap: 6px;
             padding: 12px 14px 11px; font-size: 13.5px; font-weight: 500;
@@ -129,32 +124,47 @@ layout: null
         .tab-btn:hover { color: var(--text-secondary); }
         .tab-btn.active { color: var(--text-primary); border-bottom-color: #4a6cf7; font-weight: 600; }
 
-        /* 自訂顯示標籤勾選按鈕樣式 */
-        .tag-toggle-label {
+        /* 右側勾選框區塊樣式 */
+        .tab-control {
             display: flex; align-items: center; gap: 6px;
-            font-size: 12.5px; font-weight: 500; color: var(--text-muted);
-            cursor: pointer; user-select: none; transition: color 0.15s;
+            user-select: none; cursor: pointer; font-size: 12.5px;
+            color: var(--text-muted); padding: 6px 0;
+            transition: color 0.2s;
         }
-        .tag-toggle-label:hover { color: var(--text-secondary); }
-        .tag-toggle-label input[type="checkbox"] {
-            appearance: none; -webkit-appearance: none;
-            width: 15px; height: 15px; border: 1.5px solid var(--border-color);
-            border-radius: 4px; background: var(--bg-card);
-            cursor: pointer; display: grid; place-content: center;
-            transition: background 0.15s, border-color 0.15s;
+        .tab-control:hover { color: var(--text-secondary); }
+        
+        .custom-checkbox {
+            position: relative; width: 15px; height: 15px;
+            border: 1.5px solid var(--text-light); border-radius: 3px;
+            background: transparent; display: flex; align-items: center; justify-content: center;
+            transition: background 0.2s, border-color 0.2s;
+            flex-shrink: 0;
         }
-        .tag-toggle-label input[type="checkbox"]:hover {
-            border-color: #4a6cf7;
+        .tab-control input[type="checkbox"] {
+            position: absolute; opacity: 0; width: 0; height: 0;
         }
-        .tag-toggle-label input[type="checkbox"]:checked {
-            background: #4a6cf7; border-color: #4a6cf7;
+        .custom-checkbox::after {
+            content: ""; position: absolute; width: 4.5px; height: 8px;
+            border: solid white; border-width: 0 1.5px 1.5px 0;
+            transform: rotate(45deg) scale(0) translateY(-0.5px);
+            transition: transform 0.15s ease;
         }
-        .tag-toggle-label input[type="checkbox"]:checked::before {
-            content: ""; width: 8px; height: 8px;
-            clip-path: polygon(14% 44%, 0 58%, 33% 90%, 100% 16%, 86% 2%, 33% 62%);
-            background: #ffffff;
+        .tab-control input[type="checkbox"]:checked + .custom-checkbox {
+            background: #2563eb; border-color: #2563eb;
         }
-		
+        .tab-control input[type="checkbox"]:checked + .custom-checkbox::after {
+            transform: rotate(45deg) scale(1) translateY(-0.5px);
+        }
+        .tab-control input[type="checkbox"]:focus-visible + .custom-checkbox {
+            outline: 2px solid var(--focus-ring); outline-offset: 1px;
+        }
+
+        @media (max-width: 600px) {
+            .tab-bar { padding: 0 12px; }
+            .tab-group { width: 100%; border-bottom: 1px solid var(--border-light); }
+            .tab-control { width: 100%; justify-content: flex-end; padding-bottom: 10px; }
+        }
+
         /* ── 區塊標題列 ── */
         .section-header {
             display: flex; align-items: center; justify-content: space-between;
@@ -258,11 +268,6 @@ layout: null
             transition: background 0.3s, border-color 0.3s;
         }
 
-        /* 隱藏標籤樣式：當 body 套用此 class 時，將隱藏 card-meta 下的所有 tag-badge（包含 role 與 custom 標籤） */
-        body.hide-tags .tag-badge {
-            display: none !important;
-        }
-		
         /* 窄版：meta 換到標題下一行；badge 隱藏，chip 常駐 */
         @media (max-width: 480px) {
             .card-title-row  { flex-direction: column; gap: 5px; }
@@ -270,6 +275,10 @@ layout: null
             .tag-badge       { display: none; }
         }
 
+        .show-all-tags .tag-badge {
+            display: inline-block !important;
+        }
+		
         /* 說明：允許換行，避免截斷 */
         .card-desc {
             font-size: 13px; color: var(--text-secondary);
@@ -399,9 +408,9 @@ layout: null
     <!-- 主內容卡片 -->
     <div class="content-card">
 
-        <!-- Tab 列（整合勾選框，勾選框移至右側） -->
-        <div class="tab-bar">
-            <div class="tab-bar-tabs" id="mainTabs">
+        <!-- Tab 列 -->
+        <div class="tab-bar" id="mainTabs">
+			<div class="tab-group">
                 <button class="tab-btn active" data-tab="all">
                     <i data-lucide="align-justify" style="width:14px;height:14px;"></i>所有內容
                 </button>
@@ -412,12 +421,12 @@ layout: null
                     <i data-lucide="book-open" style="width:14px;height:14px;"></i>補充資料
                 </button>
             </div>
-            <div class="tab-bar-right">
-                <label class="tag-toggle-label">
-                    <input type="checkbox" id="tagToggleCheckbox" checked onchange="toggleTags(this.checked)">
-                    <span>顯示標籤</span>
-                </label>
-            </div>
+            <!-- 右側無視寬度顯示所有標籤控制 -->
+            <label class="tab-control" for="ignoreWidthCheck">
+                <input type="checkbox" id="ignoreWidthCheck" onchange="toggleIgnoreWidth(this.checked)">
+                <span class="custom-checkbox"></span>
+                <span>窄版顯示所有標籤</span>
+            </label>
         </div>
 
         <!-- 區塊標題 + 搜尋 -->
@@ -513,26 +522,27 @@ layout: null
         lucide.createIcons();
     }
 
-    // ── 顯示/隱藏卡片標籤 (Tags) 控制器 ──
-    const tagCheckbox = document.getElementById('tagToggleCheckbox');
-    const savedTagsState = getCookie('show-tags') || localStorage.getItem('show-tags');
-    
-    // 預設為 true（開啟狀態）
-    const isTagsVisible = savedTagsState !== 'false';
-    tagCheckbox.checked = isTagsVisible;
-    if (!isTagsVisible) {
-        document.body.classList.add('hide-tags');
-    }
+    // ── 無視寬度限制顯示所有標籤控制 ──
+    const checkboxEl = document.getElementById('ignoreWidthCheck');
 
-    function toggleTags(visible) {
-        if (visible) {
-            document.body.classList.remove('hide-tags');
-            setCookie('show-tags', 'true', 365);
-            localStorage.setItem('show-tags', 'true');
+    // 讀取狀態（預設開啟 "true"，除非明確保留 "false"）
+    const savedIgnoreWidth = getCookie('ignore_width') || localStorage.getItem('ignore_width');
+    const defaultIgnoreWidth = (savedIgnoreWidth === null) ? true : (savedIgnoreWidth === 'true');
+
+    // 依據初始狀態套用
+    checkboxEl.checked = defaultIgnoreWidth;
+    toggleIgnoreWidth(defaultIgnoreWidth, false); // 第二參數 false 代表初始化不重複寫入記憶體
+
+    function toggleIgnoreWidth(isChecked, save = true) {
+        if (isChecked) {
+            htmlEl.classList.add('show-all-tags');
         } else {
-            document.body.classList.add('hide-tags');
-            setCookie('show-tags', 'false', 365);
-            localStorage.setItem('show-tags', 'false');
+            htmlEl.classList.remove('show-all-tags');
+        }
+
+        if (save) {
+            setCookie('ignore_width', isChecked ? 'true' : 'false', 365);
+            localStorage.setItem('ignore_width', isChecked ? 'true' : 'false');
         }
     }
     // ── Liquid 注入資料 ──────────────────────────────────────────
@@ -612,6 +622,7 @@ layout: null
         const tagsHTML = (p.tags && p.tags.length) ? p.tags.map(tag => {
             return `<span class="tag-badge tag-custom">${esc(tag)}</span>`;
         }).join('') : '';
+		
         const wrap = document.createElement('div');
         wrap.className = 'card-wrap';
         wrap.dataset.tab   = p.role || 'primary';
