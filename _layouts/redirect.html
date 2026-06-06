@@ -6,10 +6,16 @@ layout: null
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>當前頁面已移動/移除，請重新確認</title>
+    <title>{% if page.status == 'removed' %}[已移除]{% else %}[已移動]{% endif %} {{ page.title | default: "當前頁面已移動/移除，請重新確認" }}</title>
     <script src="https://unpkg.com/lucide@latest"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <meta property="og:site_name" content="{{ site.github.repository_nwo }} - github.io" />
+	<meta property="og:type" content="website" />
+	<meta property="og:title" content="{{ page.title }} - {{ site.github.repository_name }}" />
+	<meta property="og:description" content="{% if page.status == 'removed' %}[已移除]{% else %}[已移動]{% endif %} {{ page.description | default: site.description | strip_html | strip_newlines | truncate: 160 }}" />
+	<meta property="og:url" content="{{ page.url | absolute_url }}" />
+	<meta property="og:image" content="https://github.com/{{ site.github.owner_name }}.png?size=630" />
     <style>
         /* ── CSS 變數定義（與 category.html 一致，支援雙色模式） ── */
         :root {
@@ -105,16 +111,29 @@ layout: null
         .subtitle { font-size: 14px; color: var(--text-muted); line-height: 1.5; }
 
         /* ── 原網頁與詳情區塊 ── */
-        .info-section {
-            background: var(--file-chip-bg); border: 1px solid var(--border-light); border-radius: 8px;
-            padding: 16px 20px; margin-bottom: 16px;
+        .reason-card {
+            display: flex; gap: 14px; align-items: flex-start;
+            background: var(--file-chip-bg); border: 1px solid var(--border-color); border-radius: 8px;
+            padding: 16px 20px; margin: 0 auto 28px;
             transition: background 0.3s, border-color 0.3s;
             text-align: left;
         }
-        .info-section:last-of-type { margin-bottom: 28px; }
-        .info-title { font-size: 12px; font-weight: 600; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 6px; }
-        .info-content { font-size: 14px; color: var(--text-secondary); line-height: 1.6; word-break: break-all; }
-        .info-content strong { color: var(--text-primary); font-weight: 500; }
+        .reason-icon-wrap {
+            width: 32px; height: 32px; border-radius: 6px;
+            background: var(--icon-header-bg); color: var(--icon-header-color);
+            display: flex; align-items: center; justify-content: center;
+            flex-shrink: 0; margin-top: 2px;
+            transition: background 0.3s, color 0.3s;
+        }
+        .reason-content-wrap { flex: 1; min-width: 0; }
+        .reason-label {
+            font-size: 12px; font-weight: 600; color: var(--text-muted);
+            letter-spacing: 0.05em; margin-bottom: 4px;
+        }
+        .reason-text {
+            font-size: 14px; color: var(--text-secondary);
+            line-height: 1.6; word-break: break-all;
+        }
 
         /* ── 倒數顯示 ── */
         .countdown-indicator {
@@ -205,9 +224,14 @@ layout: null
 
         <!-- 變更原因說明 (若有填寫) -->
         {% if page.reason %}
-        <div class="info-section">
-            <div class="info-title">變更原因</div>
-            <div class="info-content">{{ page.reason }}</div>
+        <div class="reason-card">
+            <div class="reason-icon-wrap">
+                <i data-lucide="info" style="width:16px;height:16px;"></i>
+            </div>
+            <div class="reason-content-wrap">
+                <div class="reason-label">變更原因</div>
+                <div class="reason-text">{{ page.reason }}</div>
+            </div>
         </div>
         {% endif %}
 
@@ -252,7 +276,7 @@ layout: null
     </button>
 
     <div class="footer">
-        <div>Copyright © {{ site.time | date: "%Y" }} XXX. All rights reserved. Hosted on GitHub Pages as a static website.</div>
+        <div>Copyright © {{ site.time | date: "%Y" }} {{ site.github.owner_name }}. All rights reserved. Hosted on GitHub Pages as a static website.</div>
     </div>
 </div>
 
