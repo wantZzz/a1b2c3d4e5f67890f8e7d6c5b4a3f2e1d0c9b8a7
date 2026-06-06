@@ -1,0 +1,403 @@
+---
+layout: null
+---
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>當前頁面已移動/移除，請重新確認</title>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <style>
+        /* ── CSS 變數定義（與 category.html 一致，支援雙色模式） ── */
+        :root {
+            --bg-body: #eef0f3;
+            --bg-card: #ffffff;
+            --text-primary: #111111;
+            --text-secondary: #374151;
+            --text-muted: #6b7280;
+            --text-light: #9ca3af;
+            --border-color: #dde1e7;
+            --border-light: #eaecf0;
+            
+            --icon-header-bg: #e8f0fe;
+            --icon-header-color: #4a6cf7;
+            --icon-alert-bg: #fff3cd;
+            --icon-alert-color: #856404;
+            --icon-danger-bg: #f8d7da;
+            --icon-danger-color: #721c24;
+
+            --file-chip-bg: #f3f4f6;
+            --file-chip-border: #e5e7eb;
+            --shadow-sm: 0 2px 8px rgba(0,0,0,.10);
+            --focus-ring: #4a6cf7;
+
+            --btn-primary-bg: #2563eb;
+            --btn-primary-hover: #1d4ed8;
+            --btn-primary-text: #ffffff;
+        }
+
+        :root.dark {
+            --bg-body: #0f172a;
+            --bg-card: #1e293b;
+            --text-primary: #f8fafc;
+            --text-secondary: #cbd5e1;
+            --text-muted: #94a3b8;
+            --text-light: #64748b;
+            --border-color: #334155;
+            --border-light: #1e293b;
+            
+            --icon-header-bg: rgba(74, 108, 247, 0.15);
+            --icon-header-color: #708cfc;
+            --icon-alert-bg: rgba(211, 148, 0, 0.15);
+            --icon-alert-color: #f59e0b;
+            --icon-danger-bg: rgba(239, 68, 68, 0.15);
+            --icon-danger-color: #f87171;
+
+            --file-chip-bg: #1e293b;
+            --file-chip-border: #334155;
+            --shadow-sm: 0 4px 12px rgba(0,0,0,0.3);
+            --focus-ring: #6366f1;
+
+            --btn-primary-bg: #3b82f6;
+            --btn-primary-hover: #2563eb;
+            --btn-primary-text: #ffffff;
+        }
+
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+        * { font-family: 'Noto Sans TC', -apple-system, BlinkMacSystemFont, sans-serif; }
+        body { background: var(--bg-body); color: var(--text-primary); transition: background 0.3s, color 0.3s; }
+
+        .page-wrapper { max-width: 680px; margin: 0 auto; padding: 64px 20px 64px; }
+
+        /* ── 提示卡片主體 ── */
+        .redirect-card {
+            background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 12px;
+            padding: 40px 32px; box-shadow: var(--shadow-sm);
+            transition: background 0.3s, border-color 0.3s;
+            position: relative; overflow: hidden;
+        }
+
+        /* 進度條倒數效果 */
+        .progress-bar {
+            position: absolute; top: 0; left: 0; height: 4px;
+            background: linear-gradient(90deg, #4a6cf7, #2563eb);
+            width: 100%; transform-origin: left;
+            transition: transform 1s linear;
+        }
+
+        .card-header {
+            display: flex; flex-direction: column; align-items: center; text-align: center; margin-bottom: 24px;
+        }
+
+        .status-icon-wrap {
+            width: 64px; height: 64px; border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            margin-bottom: 20px;
+            transition: background 0.3s, color 0.3s;
+        }
+        .status-moved { background: var(--icon-header-bg); color: var(--icon-header-color); }
+        .status-removed { background: var(--icon-danger-bg); color: var(--icon-danger-color); }
+
+        .title { font-size: 22px; font-weight: 600; color: var(--text-primary); margin-bottom: 8px; }
+        .subtitle { font-size: 14px; color: var(--text-muted); line-height: 1.5; }
+
+        /* ── 原網頁與詳情區塊 ── */
+        .info-section {
+            background: var(--file-chip-bg); border: 1px solid var(--border-light); border-radius: 8px;
+            padding: 16px 20px; margin-bottom: 16px;
+            transition: background 0.3s, border-color 0.3s;
+            text-align: left;
+        }
+        .info-section:last-of-type { margin-bottom: 28px; }
+        .info-title { font-size: 12px; font-weight: 600; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 6px; }
+        .info-content { font-size: 14px; color: var(--text-secondary); line-height: 1.6; word-break: break-all; }
+        .info-content strong { color: var(--text-primary); font-weight: 500; }
+
+        /* ── 倒數顯示 ── */
+        .countdown-indicator {
+            text-align: center; font-size: 14px; color: var(--text-secondary); margin-bottom: 24px; font-weight: 500;
+        }
+        .countdown-number { font-size: 18px; font-weight: 600; color: #2563eb; margin: 0 4px; }
+
+        /* ── 按鈕動作區 ── */
+        .action-group {
+            display: flex; flex-direction: column; gap: 12px; align-items: center;
+        }
+        
+        .btn {
+            display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+            width: 100%; max-width: 280px; padding: 11px 16px; border-radius: 8px;
+            font-size: 14px; font-weight: 500; text-decoration: none; cursor: pointer;
+            transition: background 0.2s, color 0.2s, border-color 0.2s;
+            border: none; outline: none;
+        }
+        
+        .btn-primary {
+            background: var(--btn-primary-bg); color: var(--btn-primary-text);
+        }
+        .btn-primary:hover {
+            background: var(--btn-primary-hover);
+        }
+        
+        .btn-secondary {
+            background: var(--file-chip-bg); color: var(--text-secondary);
+            border: 1px solid var(--border-color);
+        }
+        .btn-secondary:hover {
+            background: var(--border-light);
+            color: var(--text-primary);
+        }
+
+        .btn-inline-text {
+            font-size: 13px; color: var(--text-muted); text-decoration: underline; margin-top: 12px; cursor: pointer;
+            background: none; border: none; font-family: inherit;
+        }
+        .btn-inline-text:hover { color: var(--text-primary); }
+
+        /* ── Footer ── */
+        .footer { text-align: center; margin-top: 32px; font-size: 12px; color: var(--text-muted); }
+        .footer a { color: var(--text-light); text-decoration: none; }
+        .footer a:hover { color: var(--text-secondary); }
+
+        /* ── 懸浮模式切換按鈕 ── */
+        .floating-btn {
+            position: fixed; z-index: 999; bottom: 32px; right: 32px;
+            width: 44px; height: 44px; border-radius: 50%;
+            background: var(--bg-card); border: 1px solid var(--border-color);
+            box-shadow: var(--shadow-sm);
+            display: flex; align-items: center; justify-content: center;
+            cursor: pointer; color: var(--text-muted);
+            transition: background .2s, color .2s, border-color .2s;
+        }
+        .floating-btn:hover { background: #2563eb; color: #ffffff; border-color: #2563eb; }
+    </style>
+</head>
+<body>
+<div class="page-wrapper">
+
+    <!-- 重新導向中轉卡片 -->
+    <div class="redirect-card">
+        <!-- 上方進度條 (搬移狀態下顯示) -->
+        {% if page.status != "removed" and page.target_url %}
+        <div class="progress-bar" id="progressBar"></div>
+        {% endif %}
+
+        <div class="card-header">
+            {% if page.status == "removed" %}
+            <div class="status-icon-wrap status-removed">
+                <i data-lucide="alert-octagon" style="width:32px;height:32px;"></i>
+            </div>
+            <!-- 固定文字說明 (移除) -->
+            <h1 class="title">原頁面已不存在</h1>
+            <p class="subtitle">原頁面已移除，請確認變更原因後動作</p>
+            {% else %}
+            <div class="status-icon-wrap status-moved">
+                <i data-lucide="arrow-up-right" style="width:32px;height:32px;"></i>
+            </div>
+            <!-- 固定文字說明 (搬移) -->
+            <h1 class="title">頁面已搬移新址</h1>
+            <p class="subtitle">頁面已搬移至新位置，即將為您自動跳轉</p>
+            {% endif %}
+        </div>
+
+        <!-- 變更原因說明 (若有填寫) -->
+        {% if page.reason %}
+        <div class="info-section">
+            <div class="info-title">變更原因</div>
+            <div class="info-content">{{ page.reason }}</div>
+        </div>
+        {% endif %}
+
+        <!-- 倒數跳轉 (搬移狀態下顯示) -->
+        {% if page.status != "removed" and page.target_url %}
+        <div class="countdown-indicator" id="countdownArea">
+            預計將在<span class="countdown-number" id="countdownNum">{{ page.countdown | default: 6 }}</span>秒後自動前往
+        </div>
+        {% endif %}
+
+        <!-- 行動按鈕 -->
+        <div class="action-group">
+            {% if page.status != "removed" and page.target_url %}
+            <!-- 自動在路徑前補上 site.github.url 前綴 -->
+            <a href="{{ page.target_url | prepend: site.github.url }}" class="btn btn-primary" id="directBtn">
+                <i data-lucide="external-link" style="width:16px;height:16px;"></i>
+                立即手動前往新頁面
+            </a>
+            <button class="btn btn-secondary" onclick="copyNewUrl()">
+                <i data-lucide="copy" style="width:16px;height:16px;"></i>
+                複製新網址
+            </button>
+            {% endif %}
+
+            <!-- 返回上一頁按鈕 (使用 window.history.back) -->
+            <button class="btn {% if page.status == 'removed' %}btn-primary{% else %}btn-secondary{% endif %}" onclick="window.history.back()">
+                <i data-lucide="arrow-left" style="width:16px;height:16px;"></i>
+                返回上一頁
+            </button>
+
+            {% if page.status != "removed" and page.target_url %}
+            <button class="btn-inline-text" onclick="stopRedirect()">
+                取消自動跳轉
+            </button>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- 黑暗模式切換按鈕 -->
+    <button id="darkModeToggle" class="floating-btn" aria-label="切換黑暗模式" onclick="toggleDarkMode()">
+        <i id="themeIcon" data-lucide="moon" style="width:18px;height:18px;"></i>
+    </button>
+
+    <div class="footer">
+        <div>Copyright © {{ site.time | date: "%Y" }} XXX. All rights reserved. Hosted on GitHub Pages as a static website.</div>
+    </div>
+</div>
+
+<script>
+    // ── 黑暗模式控制器（支援 Cookie 存取，與目錄頁同步） ──
+    const htmlEl = document.documentElement;
+    const themeIcon = document.getElementById('themeIcon');
+
+    function setCookie(name, value, days) {
+        let expires = "";
+        if (days) {
+            const date = new Date();
+            date.setTime(date.getTime() + (days * 24 * 60 * 60 * 1000));
+            expires = "; expires=" + date.toUTCString();
+        }
+        document.cookie = name + "=" + (value || "") + expires + "; path=/; SameSite=Lax";
+    }
+
+    function getCookie(name) {
+        const nameEQ = name + "=";
+        const ca = document.cookie.split(';');
+        for (let i = 0; i < ca.length; i++) {
+            let c = ca[i];
+            while (c.charAt(0) === ' ') c = c.substring(1, c.length);
+            if (c.indexOf(nameEQ) === 0) return c.substring(nameEQ.length, c.length);
+        }
+        return null;
+    }
+
+    const savedTheme = getCookie('theme') || localStorage.getItem('theme');
+    const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+    
+    if (savedTheme === 'dark' || (!savedTheme && prefersDark)) {
+        htmlEl.classList.add('dark');
+        themeIcon.setAttribute('data-lucide', 'sun');
+    } else {
+        htmlEl.classList.remove('dark');
+        themeIcon.setAttribute('data-lucide', 'moon');
+    }
+
+    function toggleDarkMode() {
+        const isDark = htmlEl.classList.toggle('dark');
+        const themeValue = isDark ? 'dark' : 'light';
+        
+        setCookie('theme', themeValue, 365);
+        localStorage.setItem('theme', themeValue);
+        
+        themeIcon.setAttribute('data-lucide', isDark ? 'sun' : 'moon');
+        lucide.createIcons();
+    }
+
+    lucide.createIcons();
+
+    // ── 重新導向核心邏輯（前綴由 site.github.url 提供） ──
+    const targetUrlPath = "{{ page.target_url }}";
+    const githubUrlPrefix = "{{ site.github.url }}";
+    // 完整重定向網址建構
+    const targetUrl = githubUrlPrefix + targetUrlPath;
+    
+    const statusType = "{{ page.status }}";
+    let countdownSec = parseInt("{{ page.countdown | default: 6 }}", 10);
+    let timer = null;
+
+    // 複製新網址
+    function copyNewUrl() {
+        if (!targetUrlPath) return;
+        const absoluteUrl = new URL(targetUrl, window.location.href).href;
+        
+        const tempInput = document.createElement("input");
+        tempInput.value = absoluteUrl;
+        document.body.appendChild(tempInput);
+        tempInput.select();
+        try {
+            document.execCommand("copy");
+            showToast("成功複製新網址！");
+        } catch (err) {
+            showToast("複製失敗，請手動選取複製");
+        }
+        document.body.removeChild(tempInput);
+    }
+
+    function showToast(msg) {
+        const toast = document.createElement("div");
+        toast.style.position = "fixed";
+        toast.style.bottom = "100px";
+        toast.style.left = "50%";
+        toast.style.transform = "translateX(-50%)";
+        toast.style.background = "rgba(0,0,0,0.8)";
+        toast.style.color = "#ffffff";
+        toast.style.padding = "10px 20px";
+        toast.style.borderRadius = "20px";
+        toast.style.fontSize = "13px";
+        toast.style.zIndex = "1000";
+        toast.style.transition = "opacity 0.3s";
+        toast.textContent = msg;
+        document.body.appendChild(toast);
+        setTimeout(() => {
+            toast.style.opacity = "0";
+            setTimeout(() => document.body.removeChild(toast), 300);
+        }, 2000);
+    }
+
+    // 倒數計時與跳轉
+    if (statusType !== "removed" && targetUrlPath) {
+        const countdownNumEl = document.getElementById("countdownNum");
+        const progressBar = document.getElementById("progressBar");
+
+        if (progressBar) {
+            progressBar.style.transform = "scaleX(1)";
+        }
+
+        timer = setInterval(() => {
+            countdownSec--;
+            if (countdownNumEl) {
+                countdownNumEl.textContent = countdownSec;
+            }
+
+            if (progressBar) {
+                const total = parseInt("{{ page.countdown | default: 6 }}", 10);
+                const percentage = countdownSec / total;
+                progressBar.style.transform = `scaleX(${percentage})`;
+            }
+
+            if (countdownSec <= 0) {
+                clearInterval(timer);
+                window.location.replace(targetUrl);
+            }
+        }, 1000);
+    }
+
+    // 取消自動重新導向
+    function stopRedirect() {
+        if (timer) {
+            clearInterval(timer);
+            const area = document.getElementById("countdownArea");
+            if (area) {
+                area.innerHTML = '<span style="color: var(--text-muted);">自動跳轉已取消</span>';
+            }
+            const progressBar = document.getElementById("progressBar");
+            if (progressBar) {
+                progressBar.style.display = "none";
+            }
+            showToast("已成功取消自動跳轉。");
+        }
+    }
+</script>
+</body>
+</html>
