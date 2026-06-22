@@ -1,35 +1,135 @@
----
-layout: null
----
-<div id="wayback-style-panel">
-  <div class="panel-title">🕒 時光機控制面板</div>
-  <div class="panel-links">
-    <a href="/">返回首頁</a>
+<div id="wayback-control-bar">
+  <div class="wb-meta">
+    <div id="wb-title">載入中...</div>
+    <div id="wb-desc"></div>
+  </div>
+
+  <div class="wb-related">
+    <span class="wb-label">相關存檔：</span>
+    <div id="wb-related-links">無相關網頁</div>
+  </div>
+
+  <div class="wb-actions">
+    <button onclick="history.back()" class="wb-btn">← 回到上一頁</button>
   </div>
 </div>
 
-<style>
-  #wayback-style-panel {
-    position: fixed !important;
-    top: 0 !important;
-    left: 0 !important;
-    width: 100% !important;
-    height: 50px !important;
-    background: #222 !important;
-    color: #fff !important;
-    z-index: 2147483647 !important; /* 確保絕對在最上層 */
-    display: flex !important;
-    align-items: center !important;
-    justify-content: space-between !important;
-    padding: 0 20px !important;
-    box-sizing: border-box !important;
-    font-family: sans-serif !important;
-  }
-  #wayback-style-panel a { color: #fff; text-decoration: none; background: #444; padding: 4px 8px; border-radius: 3px; }
+<div id="wayback-trigger-zone"></div>
 
-  /* 關鍵：強制把原本網頁的整體結構往下推 50px，防止頂部被面板遮擋 */
+<style>
+  /* 面板基礎樣式 */
+  #wayback-control-bar {
+    position: fixed !important;
+    top: 0 !important; left: 0 !important;
+    width: 100% !important; height: 60px !important;
+    background: rgba(30, 30, 30, 0.95) !important;
+    color: #fff !important;
+    z-index: 2147483647 !important;
+    display: flex !important; align-items: center !important; justify-content: space-between !important;
+    padding: 0 20px !important; box-sizing: border-box !important;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif !important;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.3) !important;
+    backdrop-filter: blur(5px);
+    
+    /* 動畫過渡效果 */
+    transition: transform 0.4s cubic-bezier(0.25, 1, 0.5, 1) !important;
+    transform: translateY(0); /* 預設顯示 */
+  }
+
+  /* 當面板被隱藏時的狀態 */
+  #wayback-control-bar.is-hidden {
+    transform: translateY(-65px) !important; /* 向上滑出螢幕之外 */
+  }
+
+  /* 隱形的滑鼠偵測區：固定在瀏覽器最頂端 15px 的高 */
+  #wayback-trigger-zone {
+    position: fixed !important;
+    top: 0 !important; left: 0 !important;
+    width: 100% !important; height: 15px !important;
+    background: transparent !important;
+    z-index: 2147483646 !important; /* 僅次於面板 */
+  }
+
+  /* 元件細節樣式 */
+  .wb-meta { max-width: 35%; text-align: left; }
+  #wb-title { font-weight: bold; font-size: 14px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: #00ecff; }
+  #wb-desc { font-size: 11px; color: #aaa; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-top: 2px; }
+
+  .wb-related { font-size: 13px; display: flex; align-items: center; background: rgba(255,255,255,0.05); padding: 5px 12px; border-radius: 4px; max-width: 45%; }
+  .wb-label { color: #888; font-weight: bold; white-space: nowrap; }
+  #wb-related-links { display: flex; gap: 8px; overflow-x: auto; white-space: nowrap; }
+  #wb-related-links a { color: #fff; text-decoration: none; background: #444; padding: 2px 8px; border-radius: 3px; font-size: 12px; transition: 0.2s; }
+  #wb-related-links a:hover { background: #00ecff; color: #000; }
+
+  .wb-btn { background: #333 !important; color: #fff !important; border: 1px solid #555 !important; padding: 6px 12px !important; border-radius: 4px !important; cursor: pointer !important; font-size: 13px !important; transition: 0.2s !important; }
+  .wb-btn:hover { background: #fff !important; color: #000 !important; border-color: #fff !important; }
+
+  /* 讓原始網頁整體往下推，避免一開始就被擋住 */
   html {
-    margin-top: 50px !important;
+    margin-top: 60px !important;
     position: relative !important;
   }
 </style>
+
+<script>
+(function() {
+  // 3秒（3000毫秒）後自動上滑隱藏，可自行調整
+  const HIDE_DELAY = 3000; 
+  let hideTimeout;
+
+  const panel = document.getElementById('wayback-control-bar');
+  const triggerZone = document.getElementById('wayback-trigger-zone');
+
+  // 初始化填入 Jekyll 傳過來的資料
+  function initPanelData() {
+    if (window.pageData) {
+      document.getElementById('wb-title').textContent = window.pageData.title || '無標題';
+      document.getElementById('wb-desc').textContent = window.pageData.description || '無描述';
+      
+      const relatedLinksContainer = document.getElementById('wb-related-links');
+      if (window.pageData.related && window.pageData.related.length > 0) {
+        relatedLinksContainer.innerHTML = ''; // 清空預設文字
+        window.pageData.related.forEach(function(fileName) {
+          const a = document.createElement('a');
+          a.href = fileName; // 同一目錄下直接連結檔名
+          a.textContent = fileName;
+          relatedLinksContainer.appendChild(a);
+        });
+      }
+    }
+  }
+
+  // 隱藏面板
+  function hidePanel() {
+    panel.classList.add('is-hidden');
+  }
+
+  // 顯示面板並重新開始倒數計時
+  function showPanel() {
+    panel.classList.remove('is-hidden');
+    resetTimer();
+  }
+
+  // 重設自動隱藏的計時器
+  function resetTimer() {
+    clearTimeout(hideTimeout);
+    hideTimeout = setTimeout(hidePanel, HIDE_DELAY);
+  }
+
+  // 事件監聽
+  // 1. 滑鼠靠近頂部隱形觸發區 -> 顯示面板
+  triggerZone.addEventListener('mouseenter', showPanel);
+  
+  // 2. 如果滑鼠正停留在面板本體上 -> 不要隱藏
+  panel.addEventListener('mouseenter', () => clearTimeout(hideTimeout));
+  
+  // 3. 滑鼠離開面板本體 -> 重新啟動倒數隱藏
+  panel.addEventListener('mouseleave', resetTimer);
+
+  // 啟動
+  document.addEventListener('DOMContentLoaded', function() {
+    initPanelData();
+    resetTimer(); // 網頁載入後開始倒數自動隱藏
+  });
+})();
+</script>
