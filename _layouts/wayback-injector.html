@@ -1,0 +1,14 @@
+{% comment %}
+  將原始網頁內容以 "<body>" 標籤切成前後兩半：
+  parts[0] 包含 <html> 和 <head> 裡的所有原始程式碼
+  parts[1] 包含原本 <body> 之後的所有內文與結構
+{% endcomment %}
+
+{% assign parts = content | split: '<body>' %}
+
+{{ parts[0] }}
+
+<body>
+  {% include control-panel.html %}
+
+  {{ parts[1] }}

@@ -1,0 +1,35 @@
+---
+layout: null
+---
+<div id="wayback-style-panel">
+  <div class="panel-title">🕒 時光機控制面板</div>
+  <div class="panel-links">
+    <a href="/">返回首頁</a>
+  </div>
+</div>
+
+<style>
+  #wayback-style-panel {
+    position: fixed !important;
+    top: 0 !important;
+    left: 0 !important;
+    width: 100% !important;
+    height: 50px !important;
+    background: #222 !important;
+    color: #fff !important;
+    z-index: 2147483647 !important; /* 確保絕對在最上層 */
+    display: flex !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+    padding: 0 20px !important;
+    box-sizing: border-box !important;
+    font-family: sans-serif !important;
+  }
+  #wayback-style-panel a { color: #fff; text-decoration: none; background: #444; padding: 4px 8px; border-radius: 3px; }
+
+  /* 關鍵：強制把原本網頁的整體結構往下推 50px，防止頂部被面板遮擋 */
+  html {
+    margin-top: 50px !important;
+    position: relative !important;
+  }
+</style>
