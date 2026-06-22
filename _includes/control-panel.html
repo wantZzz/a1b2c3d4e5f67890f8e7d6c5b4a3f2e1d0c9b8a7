@@ -1,4 +1,4 @@
-<div id="wayback-control-bar" class="is-hidden">
+<div id="wayback-control-bar">
   <div class="wb-meta-zone">
     <div id="wb-icon-container"></div>
     <div class="wb-text-content">
@@ -22,7 +22,7 @@
 <div id="wayback-trigger-zone"></div>
 
 <style>
-  /* 全域面板容器 - 獨立懸浮層，完全不擠壓原始版面 */
+  /* 全域面板容器 */
   #wayback-control-bar {
     position: fixed !important;
     top: 0 !important; left: 0 !important;
@@ -30,7 +30,7 @@
     background: #111827 !important;
     border-bottom: 1px solid #1f2937 !important;
     color: #fff !important;
-    z-index: 2147483647 !important; /* 最高的疊放次序 */
+    z-index: 2147483647 !important;
     display: flex !important; align-items: center !important; justify-content: space-between !important;
     padding: 0 24px !important; box-sizing: border-box !important;
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif !important;
@@ -39,40 +39,32 @@
     /* 動畫過渡 */
     transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1) !important;
     transform: translateY(0);
-    pointer-events: auto !important; /* 顯示時可以正常點擊 */
+    pointer-events: auto !important;
   }
 
-  /* 面板隱藏狀態 - 向上隱藏，且不干擾底層原始網頁的點擊 */
+  /* 面板隱藏狀態 */
   #wayback-control-bar.is-hidden {
     transform: translateY(-80px) !important;
-    pointer-events: none !important; /* 隱藏時滑鼠事件直接穿透，不擋住舊網頁頂部的按鈕 */
+    pointer-events: none !important;
   }
 
-  /* 頂部隱形滑鼠偵測帶 - 寬度滿版，高度 15px 貼在最上緣 */
+  /* 頂部隱形滑鼠偵測帶 - 高度縮小至 6px */
   #wayback-trigger-zone {
     position: fixed !important;
     top: 0 !important; left: 0 !important;
-    width: 100% !important; height: 15px !important;
+    width: 100% !important; height: 6px !important;
     background: transparent !important;
-    z-index: 2147483646 !important; /* 僅次於面板 */
+    z-index: 2147483646 !important;
     pointer-events: auto !important;
   }
 
   /* --- 左側圖示與文字 --- */
   .wb-meta-zone { display: flex !important; align-items: center !important; gap: 14px !important; max-width: 40% !important; }
-  
-  .item-icon-wrap {
-    width: 36px !important; height: 36px !important;
-    border-radius: 6px !important;
-    display: flex !important; align-items: center !important; justify-content: center !important;
-    flex-shrink: 0 !important;
-  }
+  .item-icon-wrap { width: 36px !important; height: 36px !important; border-radius: 6px !important; display: flex !important; align-items: center !important; justify-content: center !important; flex-shrink: 0 !important; }
   .item-icon-wrap.icon-primary { background: #1e3a8a !important; color: #60a5fa !important; }
   .item-icon-wrap.icon-supplementary { background: #14532d !important; color: #4ade80 !important; }
-
   .wb-text-content { display: flex !important; flex-direction: column !important; gap: 4px !important; }
   .wb-title-wrapper { display: flex !important; align-items: center !important; gap: 6px !important; }
-  
   #wb-title { font-size: 16px !important; font-weight: 600 !important; color: #f3f4f6 !important; white-space: nowrap !important; overflow: hidden !important; text-overflow: ellipsis !important; }
   .wb-arrow { color: #6b7280 !important; font-size: 14px !important; font-weight: bold !important; }
   #wb-desc { font-size: 13px !important; color: #9ca3af !important; white-space: nowrap !important; overflow: hidden !important; text-overflow: ellipsis !important; }
@@ -91,14 +83,14 @@
     font-size: 13px !important; transition: all 0.2s !important;
   }
   .wb-back-btn:hover { background: #374151 !important; color: #fff !important; }
-
-  /* 【已移除】 這裡原本有 html { margin-top: 75px !important; }，現已完全刪除，確保對原始版面零干擾 */
 </style>
 
 <script>
 (function() {
-  const HIDE_DELAY = 3000;
+  const INITIAL_DELAY = 2000; // 首次載入完成後停留 2 秒
+  const HOVER_DELAY = 3000;   // 平時滑鼠移開後停留 3 秒
   let hideTimeout;
+  let isPanelVisible = true;
 
   const panel = document.getElementById('wayback-control-bar');
   const triggerZone = document.getElementById('wayback-trigger-zone');
@@ -140,20 +132,49 @@
     }
   }
 
-  function hidePanel() { panel.classList.add('is-hidden'); }
-  function showPanel() { panel.classList.remove('is-hidden'); resetTimer(); }
-  function resetTimer() { clearTimeout(hideTimeout); hideTimeout = setTimeout(hidePanel, HIDE_DELAY); }
+  function hidePanel() {
+    panel.classList.add('is-hidden');
+    isPanelVisible = false;
+  }
 
-  // 監聽頂部隱形觸發區
+  function showPanel() {
+    panel.classList.remove('is-hidden');
+    isPanelVisible = true;
+    resetTimer(HOVER_DELAY);
+  }
+
+  function resetTimer(delay) {
+    clearTimeout(hideTimeout);
+    hideTimeout = setTimeout(hidePanel, delay);
+  }
+
+  // 監聽滑鼠頂部觸發事件
   triggerZone.addEventListener('mouseenter', showPanel);
-  // 滑鼠在面板上時，取消隱藏計時
-  panel.addEventListener('mouseenter', () => clearTimeout(hideTimeout));
-  // 滑鼠離開面板時，重新倒數隱藏
-  panel.addEventListener('mouseleave', resetTimer);
 
+  // 滑鼠進入面板，暫停計時
+  panel.addEventListener('mouseenter', () => clearTimeout(hideTimeout));
+
+  // 滑鼠離開面板，重新倒數 3 秒隱藏
+  panel.addEventListener('mouseleave', () => resetTimer(HOVER_DELAY));
+
+  // 新增：點擊控制面板以外的任何地方，面板立刻消失
+  document.addEventListener('click', function(event) {
+    if (isPanelVisible) {
+      // 檢查點擊的目標是否「不在」控制面板之內
+      const isClickInsidePanel = panel.contains(event.target);
+      const isClickInsideTrigger = triggerZone.contains(event.target);
+      
+      if (!isClickInsidePanel && !isClickInsideTrigger) {
+        // 給予 200ms 的極短緩衝，隨即立刻隱藏（比原本等待3秒更快、更直接）
+        resetTimer(200); 
+      }
+    }
+  });
+
+  // 初始化啟動
   document.addEventListener('DOMContentLoaded', function() {
     initPanelData();
-    resetTimer(); // 初始載入顯示 3 秒後自動收回
+    resetTimer(INITIAL_DELAY); // 初始啟動：2 秒後自動收回
   });
 })();
 </script>
