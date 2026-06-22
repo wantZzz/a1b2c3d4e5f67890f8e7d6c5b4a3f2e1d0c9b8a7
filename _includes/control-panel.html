@@ -4,7 +4,6 @@
     <div class="wb-text-content">
       <div class="wb-title-wrapper">
         <span id="wb-title">載入中...</span>
-        <span class="wb-arrow">↗</span>
       </div>
       <div id="wb-desc"></div>
     </div>
@@ -48,39 +47,78 @@
     pointer-events: none !important;
   }
 
-  /* 頂部隱形滑鼠偵測帶 - 高度縮小至 6px */
+  /* 頂部隱形滑鼠偵測帶 */
   #wayback-trigger-zone {
     position: fixed !important;
     top: 0 !important; left: 0 !important;
-    width: 100% !important; height: 6px !important;
+    width: 100% !important; height: 12px !important;
     background: transparent !important;
     z-index: 2147483646 !important;
     pointer-events: auto !important;
   }
 
   /* --- 左側圖示與文字 --- */
-  .wb-meta-zone { display: flex !important; align-items: center !important; gap: 14px !important; max-width: 40% !important; }
+  .wb-meta-zone { display: flex !important; align-items: center !important; gap: 14px !important; max-width: 35% !important; }
   .item-icon-wrap { width: 36px !important; height: 36px !important; border-radius: 6px !important; display: flex !important; align-items: center !important; justify-content: center !important; flex-shrink: 0 !important; }
   .item-icon-wrap.icon-primary { background: #1e3a8a !important; color: #60a5fa !important; }
   .item-icon-wrap.icon-supplementary { background: #14532d !important; color: #4ade80 !important; }
   .wb-text-content { display: flex !important; flex-direction: column !important; gap: 4px !important; }
-  .wb-title-wrapper { display: flex !important; align-items: center !important; gap: 6px !important; }
+  .wb-title-wrapper { display: flex !important; align-items: center !important; }
+  
+  /* 標題與相關連結字重對齊 */
   #wb-title { font-size: 16px !important; font-weight: 600 !important; color: #f3f4f6 !important; white-space: nowrap !important; overflow: hidden !important; text-overflow: ellipsis !important; }
-  .wb-arrow { color: #6b7280 !important; font-size: 14px !important; font-weight: bold !important; }
   #wb-desc { font-size: 13px !important; color: #9ca3af !important; white-space: nowrap !important; overflow: hidden !important; text-overflow: ellipsis !important; }
 
-  /* --- 中間相關連結 --- */
-  .wb-related-zone { max-width: 45% !important; display: flex !important; align-items: center !important; }
-  #wb-related-links { display: flex !important; flex-direction: row !important; gap: 16px !important; overflow-x: auto !important; white-space: nowrap !important; }
-  .wb-link-item { color: #ffffff !important; text-decoration: underline !important; font-size: 14px !important; display: inline-flex !important; align-items: center !important; gap: 6px !important; }
-  .wb-link-item:hover { color: #93c5fd !important; }
-  .wb-doc-icon { color: #6b7280 !important; display: inline-block !important; }
+  /* --- 中間相關連結（全新美化版） --- */
+  .wb-related-zone { max-width: 50% !important; display: flex !important; align-items: center !important; }
+  
+  #wb-related-links { 
+    display: flex !important; 
+    flex-direction: row !important; 
+    gap: 12px !important; 
+    overflow-x: auto !important; 
+    white-space: nowrap !important;
+    padding: 4px 0 !important;
+  }
+
+  /* 膠囊化扁平 UI 連結卡片 */
+  .wb-link-item { 
+    color: #f3f4f6 !important; /* 顏色完全與 wb-title 一致 */
+    text-decoration: none !important; /* 移除傳統老舊底線 */
+    font-size: 13px !important; 
+    font-weight: 500 !important;
+    display: inline-flex !important; 
+    align-items: center !important; 
+    gap: 8px !important; 
+    background: #1f2937 !important; /* 深灰色卡片背景 */
+    border: 1px solid #374151 !important;
+    padding: 6px 14px !important;
+    border-radius: 20px !important; /* 圓角膠囊 */
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1) !important;
+  }
+  
+  /* Hover 互動視覺回饋 */
+  .wb-link-item:hover { 
+    background: #374151 !important; 
+    border-color: #4b5563 !important;
+    transform: translateY(-1px) !important;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.2) !important;
+  }
+  
+  /* 平面 UI 的 SVG 文件圖示樣式 */
+  .wb-doc-icon-svg { 
+    width: 14px !important; 
+    height: 14px !important; 
+    color: #9ca3af !important; /* 優雅的次要灰色 */
+    flex-shrink: 0 !important;
+  }
 
   /* --- 右側按鈕 --- */
   .wb-back-btn {
     background: #1f2937 !important; color: #d1d5db !important; border: 1px solid #374151 !important;
     padding: 6px 14px !important; border-radius: 6px !important; cursor: pointer !important;
     font-size: 13px !important; transition: all 0.2s !important;
+    white-space: nowrap !important;
   }
   .wb-back-btn:hover { background: #374151 !important; color: #fff !important; }
 </style>
@@ -97,13 +135,23 @@
 
   const primarySvg = `
     <div class="item-icon-wrap icon-primary">
-      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="bookmark" aria-hidden="true" style="width:15px;height:15px;" class="lucide lucide-bookmark"><path d="M17 3a2 2 0 0 1 2 2v15a1 1 0 0 1-1.496.868l-4.512-2.578a2 2 0 0 0-1.984 0l-4.512 2.578A1 1 0 0 1 5 20V5a2 2 0 0 1 2-2z"></path></svg>
+      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:15px;height:15px;" class="lucide lucide-bookmark"><path d="M17 3a2 2 0 0 1 2 2v15a1 1 0 0 1-1.496.868l-4.512-2.578a2 2 0 0 0-1.984 0l-4.512 2.578A1 1 0 0 1 5 20V5a2 2 0 0 1 2-2z"></path></svg>
     </div>`;
 
   const supplementarySvg = `
     <div class="item-icon-wrap icon-supplementary">
-      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="book-open" aria-hidden="true" style="width:15px;height:15px;" class="lucide lucide-book-open"><path d="M12 7v14"></path><path d="M3 18a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1h5a4 4 0 0 1 4 4 4 4 0 0 1 4-4h5a1 1 0 0 1 1 1v13a1 1 0 0 1-1 1h-6a3 3 0 0 0-3 3 3 3 0 0 0-3-3z"></path></svg>
+      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:15px;height:15px;" class="lucide lucide-book-open"><path d="M12 7v14"></path><path d="M3 18a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1h5a4 4 0 0 1 4 4 4 4 0 0 1 4-4h5a1 1 0 0 1 1 1v13a1 1 0 0 1-1 1h-6a3 3 0 0 0-3 3 3 3 0 0 0-3-3z"></path></svg>
     </div>`;
+
+  // 代替 emoji 的平面 UI SVG 文件圖示原始碼
+  const flatDocSvg = `
+    <svg class="wb-doc-icon-svg" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"/>
+      <path d="M14 2v4a2 2 0 0 0 2 2h4"/>
+      <path d="M10 9H8"/>
+      <path d="M16 13H8"/>
+      <path d="M16 17H8"/>
+    </svg>`;
 
   function initPanelData() {
     if (window.pageData) {
@@ -123,7 +171,8 @@
           const a = document.createElement('a');
           a.className = 'wb-link-item';
           a.href = linkText;
-          a.innerHTML = '<span class="wb-doc-icon">📄</span> ' + linkText;
+          // 組合平面 SVG 與連結文字
+          a.innerHTML = flatDocSvg + '<span>' + linkText + '</span>';
           relatedContainer.appendChild(a);
         });
       } else {
@@ -132,49 +181,27 @@
     }
   }
 
-  function hidePanel() {
-    panel.classList.add('is-hidden');
-    isPanelVisible = false;
-  }
+  function hidePanel() { panel.classList.add('is-hidden'); isPanelVisible = false; }
+  function showPanel() { panel.classList.remove('is-hidden'); isPanelVisible = true; resetTimer(HOVER_DELAY); }
+  function resetTimer(delay) { clearTimeout(hideTimeout); hideTimeout = setTimeout(hidePanel, delay); }
 
-  function showPanel() {
-    panel.classList.remove('is-hidden');
-    isPanelVisible = true;
-    resetTimer(HOVER_DELAY);
-  }
-
-  function resetTimer(delay) {
-    clearTimeout(hideTimeout);
-    hideTimeout = setTimeout(hidePanel, delay);
-  }
-
-  // 監聽滑鼠頂部觸發事件
   triggerZone.addEventListener('mouseenter', showPanel);
-
-  // 滑鼠進入面板，暫停計時
   panel.addEventListener('mouseenter', () => clearTimeout(hideTimeout));
-
-  // 滑鼠離開面板，重新倒數 3 秒隱藏
   panel.addEventListener('mouseleave', () => resetTimer(HOVER_DELAY));
 
-  // 新增：點擊控制面板以外的任何地方，面板立刻消失
   document.addEventListener('click', function(event) {
     if (isPanelVisible) {
-      // 檢查點擊的目標是否「不在」控制面板之內
       const isClickInsidePanel = panel.contains(event.target);
       const isClickInsideTrigger = triggerZone.contains(event.target);
-      
       if (!isClickInsidePanel && !isClickInsideTrigger) {
-        // 給予 200ms 的極短緩衝，隨即立刻隱藏（比原本等待3秒更快、更直接）
         resetTimer(200); 
       }
     }
   });
 
-  // 初始化啟動
   document.addEventListener('DOMContentLoaded', function() {
     initPanelData();
-    resetTimer(INITIAL_DELAY); // 初始啟動：2 秒後自動收回
+    resetTimer(INITIAL_DELAY);
   });
 })();
 </script>
