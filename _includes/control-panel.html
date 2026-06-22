@@ -1,135 +1,168 @@
 <div id="wayback-control-bar">
-  <div class="wb-meta">
-    <div id="wb-title">載入中...</div>
-    <div id="wb-desc"></div>
+  <div class="wb-meta-zone">
+    <div id="wb-icon-container"></div>
+    
+    <div class="wb-text-content">
+      <div class="wb-title-wrapper">
+        <span id="wb-title">載入中...</span>
+      </div>
+      <div id="wb-desc"></div>
+    </div>
   </div>
 
-  <div class="wb-related">
-    <span class="wb-label">相關存檔：</span>
-    <div id="wb-related-links">無相關網頁</div>
+  <div class="wb-related-zone">
+    <div id="wb-related-links"></div>
   </div>
 
-  <div class="wb-actions">
-    <button onclick="history.back()" class="wb-btn">← 回到上一頁</button>
+  <div class="wb-actions-zone">
+    <button onclick="history.back()" class="wb-back-btn">← 回上一頁</button>
   </div>
 </div>
 
 <div id="wayback-trigger-zone"></div>
 
 <style>
-  /* 面板基礎樣式 */
+  /* 全域面板容器 */
   #wayback-control-bar {
     position: fixed !important;
     top: 0 !important; left: 0 !important;
-    width: 100% !important; height: 60px !important;
-    background: rgba(30, 30, 30, 0.95) !important;
+    width: 100% !important; height: 75px !important;
+    background: #111827 !important;
+    border-bottom: 1px solid #1f2937 !important;
     color: #fff !important;
     z-index: 2147483647 !important;
     display: flex !important; align-items: center !important; justify-content: space-between !important;
-    padding: 0 20px !important; box-sizing: border-box !important;
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif !important;
-    box-shadow: 0 4px 15px rgba(0,0,0,0.3) !important;
-    backdrop-filter: blur(5px);
-    
-    /* 動畫過渡效果 */
-    transition: transform 0.4s cubic-bezier(0.25, 1, 0.5, 1) !important;
-    transform: translateY(0); /* 預設顯示 */
+    padding: 0 24px !important; box-sizing: border-box !important;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif !important;
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.3) !important;
+    transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1) !important;
+    transform: translateY(0);
   }
 
-  /* 當面板被隱藏時的狀態 */
   #wayback-control-bar.is-hidden {
-    transform: translateY(-65px) !important; /* 向上滑出螢幕之外 */
+    transform: translateY(-80px) !important;
   }
 
-  /* 隱形的滑鼠偵測區：固定在瀏覽器最頂端 15px 的高 */
   #wayback-trigger-zone {
     position: fixed !important;
     top: 0 !important; left: 0 !important;
     width: 100% !important; height: 15px !important;
     background: transparent !important;
-    z-index: 2147483646 !important; /* 僅次於面板 */
+    z-index: 2147483646 !important;
   }
 
-  /* 元件細節樣式 */
-  .wb-meta { max-width: 35%; text-align: left; }
-  #wb-title { font-weight: bold; font-size: 14px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: #00ecff; }
-  #wb-desc { font-size: 11px; color: #aaa; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-top: 2px; }
-
-  .wb-related { font-size: 13px; display: flex; align-items: center; background: rgba(255,255,255,0.05); padding: 5px 12px; border-radius: 4px; max-width: 45%; }
-  .wb-label { color: #888; font-weight: bold; white-space: nowrap; }
-  #wb-related-links { display: flex; gap: 8px; overflow-x: auto; white-space: nowrap; }
-  #wb-related-links a { color: #fff; text-decoration: none; background: #444; padding: 2px 8px; border-radius: 3px; font-size: 12px; transition: 0.2s; }
-  #wb-related-links a:hover { background: #00ecff; color: #000; }
-
-  .wb-btn { background: #333 !important; color: #fff !important; border: 1px solid #555 !important; padding: 6px 12px !important; border-radius: 4px !important; cursor: pointer !important; font-size: 13px !important; transition: 0.2s !important; }
-  .wb-btn:hover { background: #fff !important; color: #000 !important; border-color: #fff !important; }
-
-  /* 讓原始網頁整體往下推，避免一開始就被擋住 */
-  html {
-    margin-top: 60px !important;
-    position: relative !important;
+  /* --- 左側圖示與文字 CSS --- */
+  .wb-meta-zone { display: flex !important; align-items: center !important; gap: 14px !important; max-width: 40% !important; }
+  
+  /* 依據傳入的 class 自動切換圖示底色與尺寸（完美對齊你的截圖樣式） */
+  .item-icon-wrap {
+    width: 36px !important; height: 36px !important;
+    border-radius: 6px !important;
+    display: flex !important; align-items: center !important; justify-content: center !important;
+    flex-shrink: 0 !important;
   }
+  /* Primary 為深藍色底、淺藍色書籤圖示 */
+  .item-icon-wrap.icon-primary { background: #1e3a8a !important; color: #60a5fa !important; }
+  /* Supplementary 為深綠色底、淺綠色開書圖示 */
+  .item-icon-wrap.icon-supplementary { background: #14532d !important; color: #4ade80 !important; }
+
+  .wb-text-content { display: flex !important; flex-direction: column !important; gap: 4px !important; }
+  .wb-title-wrapper { display: flex !important; align-items: center !important; gap: 6px !important; }
+  
+  #wb-title {
+    font-size: 16px !important; font-weight: 600 !important; color: #f3f4f6 !important;
+    white-space: nowrap !important; overflow: hidden !important; text-overflow: ellipsis !important;
+  }
+  .wb-arrow { color: #6b7280 !important; font-size: 14px !important; font-weight: bold !important; }
+  
+  #wb-desc {
+    font-size: 13px !important; color: #9ca3af !important;
+    white-space: nowrap !important; overflow: hidden !important; text-overflow: ellipsis !important;
+  }
+
+  /* --- 中間相關連結 CSS --- */
+  .wb-related-zone { max-width: 45% !important; display: flex !important; align-items: center !important; }
+  #wb-related-links { display: flex !important; flex-direction: row !important; gap: 16px !important; overflow-x: auto !important; white-space: nowrap !important; }
+  .wb-link-item { color: #ffffff !important; text-decoration: underline !important; font-size: 14px !important; display: inline-flex !important; align-items: center !important; gap: 6px !important; }
+  .wb-link-item:hover { color: #93c5fd !important; }
+  .wb-doc-icon { color: #6b7280 !important; display: inline-block !important; }
+
+  /* --- 右側按鈕 CSS --- */
+  .wb-back-btn {
+    background: #1f2937 !important; color: #d1d5db !important; border: 1px solid #374151 !important;
+    padding: 6px 14px !important; border-radius: 6px !important; cursor: pointer !important;
+    font-size: 13px !important; transition: all 0.2s !important;
+  }
+  .wb-back-btn:hover { background: #374151 !important; color: #fff !important; }
+
+  html { margin-top: 75px !important; position: relative !important; }
 </style>
 
 <script>
 (function() {
-  // 3秒（3000毫秒）後自動上滑隱藏，可自行調整
-  const HIDE_DELAY = 3000; 
+  const HIDE_DELAY = 3000;
   let hideTimeout;
 
   const panel = document.getElementById('wayback-control-bar');
   const triggerZone = document.getElementById('wayback-trigger-zone');
 
-  // 初始化填入 Jekyll 傳過來的資料
+  // 你要求的兩種不同 Role 的 SVG 模組字串
+  const primarySvg = `
+    <div class="item-icon-wrap icon-primary">
+      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="bookmark" aria-hidden="true" style="width:15px;height:15px;" class="lucide lucide-bookmark"><path d="M17 3a2 2 0 0 1 2 2v15a1 1 0 0 1-1.496.868l-4.512-2.578a2 2 0 0 0-1.984 0l-4.512 2.578A1 1 0 0 1 5 20V5a2 2 0 0 1 2-2z"></path></svg>
+    </div>`;
+
+  const supplementarySvg = `
+    <div class="item-icon-wrap icon-supplementary">
+      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="book-open" aria-hidden="true" style="width:15px;height:15px;" class="lucide lucide-book-open"><path d="M12 7v14"></path><path d="M3 18a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1h5a4 4 0 0 1 4 4 4 4 0 0 1 4-4h5a1 1 0 0 1 1 1v13a1 1 0 0 1-1 1h-6a3 3 0 0 0-3 3 3 3 0 0 0-3-3z"></path></svg>
+    </div>`;
+
   function initPanelData() {
     if (window.pageData) {
-      document.getElementById('wb-title').textContent = window.pageData.title || '無標題';
-      document.getElementById('wb-desc').textContent = window.pageData.description || '無描述';
+      // 1. 檢查並注入 Role 圖示
+      const iconContainer = document.getElementById('wb-icon-container');
+      if (window.pageData.role === 'supplementary') {
+        iconContainer.innerHTML = supplementarySvg;
+      } else {
+        iconContainer.innerHTML = primarySvg; // 預設或為 primary 時
+      }
+
+      // 2. 檢查 Title（若沒有則顯示預設檔名）
+      const pageTitle = window.pageData.title.trim();
+      document.getElementById('wb-title').textContent = pageTitle !== "" ? pageTitle : window.pageData.defaultName;
+
+      // 3. 檢查 Description（若沒有則顯示「沒有描述」）
+      const pageDesc = window.pageData.description.trim();
+      document.getElementById('wb-desc').textContent = pageDesc !== "" ? pageDesc : "沒有描述";
       
-      const relatedLinksContainer = document.getElementById('wb-related-links');
+      // 4. 渲染相關網頁橫向連結
+      const relatedContainer = document.getElementById('wb-related-links');
       if (window.pageData.related && window.pageData.related.length > 0) {
-        relatedLinksContainer.innerHTML = ''; // 清空預設文字
-        window.pageData.related.forEach(function(fileName) {
+        relatedContainer.innerHTML = '';
+        window.pageData.related.forEach(function(linkText) {
           const a = document.createElement('a');
-          a.href = fileName; // 同一目錄下直接連結檔名
-          a.textContent = fileName;
-          relatedLinksContainer.appendChild(a);
+          a.className = 'wb-link-item';
+          a.href = linkText;
+          a.innerHTML = '<span class="wb-doc-icon">📄</span> ' + linkText;
+          relatedContainer.appendChild(a);
         });
+      } else {
+        relatedContainer.innerHTML = '<span style="color:#4b5563; font-size:13px;">No related archives</span>';
       }
     }
   }
 
-  // 隱藏面板
-  function hidePanel() {
-    panel.classList.add('is-hidden');
-  }
+  function hidePanel() { panel.classList.add('is-hidden'); }
+  function showPanel() { panel.classList.remove('is-hidden'); resetTimer(); }
+  function resetTimer() { clearTimeout(hideTimeout); hideTimeout = setTimeout(hidePanel, HIDE_DELAY); }
 
-  // 顯示面板並重新開始倒數計時
-  function showPanel() {
-    panel.classList.remove('is-hidden');
-    resetTimer();
-  }
-
-  // 重設自動隱藏的計時器
-  function resetTimer() {
-    clearTimeout(hideTimeout);
-    hideTimeout = setTimeout(hidePanel, HIDE_DELAY);
-  }
-
-  // 事件監聽
-  // 1. 滑鼠靠近頂部隱形觸發區 -> 顯示面板
   triggerZone.addEventListener('mouseenter', showPanel);
-  
-  // 2. 如果滑鼠正停留在面板本體上 -> 不要隱藏
   panel.addEventListener('mouseenter', () => clearTimeout(hideTimeout));
-  
-  // 3. 滑鼠離開面板本體 -> 重新啟動倒數隱藏
   panel.addEventListener('mouseleave', resetTimer);
 
-  // 啟動
   document.addEventListener('DOMContentLoaded', function() {
     initPanelData();
-    resetTimer(); // 網頁載入後開始倒數自動隱藏
+    resetTimer();
   });
 })();
 </script>

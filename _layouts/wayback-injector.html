@@ -5,9 +5,10 @@
 <body>
   <script>
     window.pageData = {
+      role: "{{ page.role | default: 'primary' }}", // 若沒寫則預設為 primary
       title: "{{ page.title | escape }}",
+      defaultName: "{{ page.name | escape }}", // 備用檔名
       description: "{{ page.description | escape }}",
-      // 將 Liquid 陣列轉為 JS 陣列字串
       related: [
         {% for item in page.related %}
           "{{ item }}"{% unless forloop.last %},{% endunless %}
