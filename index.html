@@ -190,21 +190,6 @@ description: "收錄並歸檔所有學習過程中用於輔助理解產生的多
         .dir-body { padding: 18px 20px; flex: 1; display: flex; flex-direction: column; }
         .dir-desc { font-size: 13px; color: var(--text-secondary); line-height: 1.6; }
 
-        /* ──【保留樣式】未來若需要「最近新增」或「精選收錄」可用此區塊 ── */
-        .recent-files-box { margin-top: 16px; border-top: 1px dashed var(--border-color); padding-top: 14px; display: none; }
-        .files-header { font-size: 11.5px; font-weight: 600; color: var(--text-muted); letter-spacing: 0.5px; margin-bottom: 8px; }
-        .file-list { display: flex; flex-direction: column; gap: 6px; }
-        .file-item {
-            display: flex; align-items: center; justify-content: space-between;
-            padding: 6px 10px; border-radius: 6px; background: var(--bg-body);
-            border: 1px solid var(--border-color); text-decoration: none; font-size: 12.5px; color: var(--text-secondary);
-            transition: all .15s;
-        }
-        .file-item:hover { background: var(--border-color); color: #2563eb; }
-        .file-left { display: flex; align-items: center; gap: 8px; min-width: 0; }
-        .file-left svg { color: var(--text-muted); flex-shrink: 0; }
-        .file-name { font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-
         /* ── Footer ── */
         .footer-sec { border-top: 1px solid var(--border-color); padding: 32px 0; text-align: center; font-size: 12.5px; color: var(--text-muted); margin-top: 48px; }
 
@@ -364,35 +349,9 @@ description: "收錄並歸檔所有學習過程中用於輔助理解產生的多
                     </div>
                 </div>
                 
-                <!-- 卡片主體 -->
+                <!-- 卡片主體（僅保留子目錄描述，移除耗時的 nested posts Liquid 迴圈以優化效能） -->
                 <div class="dir-body">
                     <p class="dir-desc">{{ cat.description | default: "暫無描述。" }}</p>
-                    
-                    <!-- 關聯頁面 (選填備用區塊，結構由 Jekyll 預先生成，預設由 CSS 設為 display: none) -->
-                    {% assign related_pages = "" | split: "" %}
-                    {% for p in site.pages %}
-                        {% if p.dir == cat_dir and p.url != cat.url %}
-                            {% assign related_pages = related_pages | push: p %}
-                        {% endif %}
-                    {% endfor %}
-                    {% assign related_size = related_pages | size %}
-                    
-                    {% if related_size > 0 %}
-                    <div class="recent-files-box">
-                        <div class="files-header">最近新增</div>
-                        <div class="file-list">
-                            {% for rel in related_pages %}
-                            <a href="{{ rel.url | relative_url }}" class="file-item">
-                                <div class="file-left">
-                                    <i data-lucide="file-text" style="width:13px;height:13px;"></i>
-                                    <span class="file-name">{{ rel.title | default: rel.name }}</span>
-                                </div>
-                                <i data-lucide="chevron-right" style="width:12px;height:12px;color:var(--text-muted);"></i>
-                            </a>
-                            {% endfor %}
-                        </div>
-                    </div>
-                    {% endif %}
                 </div>
             </div>
         {% endfor %}
