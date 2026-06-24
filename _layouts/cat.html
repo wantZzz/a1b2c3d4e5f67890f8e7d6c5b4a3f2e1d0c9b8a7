@@ -1,21 +1,33 @@
 ---
 layout: null
 ---
+{% assign dir_parts = page.dir | split: "/" %}
+{% assign dir_last = dir_parts | last %}
+{% if dir_last == nil or dir_last == "" %}
+  {% assign current_dir_name = site.github.repository_name %}
+{% else %}
+  {% assign current_dir_name = dir_last %}
+{% endif %}
+{% assign page_title = page.title | default: current_dir_name %}
 <!DOCTYPE html>
 <html lang="zh-Hant">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{{ page.title }}</title>
+    <title>{{ page_title }} - {{ site.github.repository_name }}</title>
     <script src="https://unpkg.com/lucide@latest"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@300;400;500;600&display=swap" rel="stylesheet">
 	<meta property="og:site_name" content="{{ site.github.repository_nwo }} - github.io" />
 	<meta property="og:type" content="website" />
-	<meta property="og:title" content="{{ page.title }} - {{ site.github.repository_name }}" />
+	<meta property="og:title" content="{{ page_title }} - {{ site.github.repository_name }}" />
 	<meta property="og:description" content="{{ page.description | default: site.description | strip_html | strip_newlines | truncate: 160 }}" />
 	<meta property="og:url" content="{{ page.url | absolute_url }}" />
 	<meta property="og:image" content="https://github.com/{{ site.github.owner_name }}.png?size=630" />
+	
+	<meta name="twitter:card" content="summary" />
+	<meta name="twitter:title" content="{{ page_title }} - {{ site.github.repository_name }}" />
+	<meta name="twitter:description" content="{{ page.description | default: site.description | strip_html | strip_newlines | truncate: 160 }}" />
     <style>
         /* ── CSS 變數定義（支援亮色與暗色模式切換） ── */
         :root {
@@ -170,7 +182,7 @@ layout: null
             .tab-group { width: 100%; border-bottom: 1px solid var(--border-light); }
             .tab-control { width: 100%; justify-content: flex-end; padding-bottom: 10px; }
         }
-
+		
         /* ── 區塊標題列 ── */
         .section-header {
             display: flex; align-items: center; justify-content: space-between;
@@ -260,8 +272,7 @@ layout: null
         .tag-primary       { background: var(--tag-primary-bg); color: var(--tag-primary-color); border: 1px solid var(--tag-primary-border); }
         .tag-supplementary { background: var(--tag-supp-bg); color: var(--tag-supp-color); border: 1px solid var(--tag-supp-border); }
         
-        /* 額外擴充自訂 tag 樣式 */
-        .tag-custom {
+		.tag-custom {
             background: var(--file-chip-bg);
             color: var(--text-secondary);
             border: 1px solid var(--file-chip-border);
@@ -401,7 +412,7 @@ layout: null
                 <i data-lucide="layers" style="width:18px;height:18px;"></i>
             </div>
             <div>
-                <div class="header-title">{{ page.title }}</div>
+                <div class="header-title">{{ page_title }}</div>
                 <div class="header-subtitle">{{ page.description }}</div>
             </div>
         </div>
@@ -450,8 +461,98 @@ layout: null
             </div>
         </div>
 
-        <!-- 1欄 Grid：由 JS 依據下方 allPagesData 動態渲染 -->
-        <div class="item-grid" id="itemGrid"></div>
+        <!-- 1欄 Grid：直接由 Liquid 進行靜態渲染（對 SEO 爬蟲極致友善，秒讀無延遲） -->
+        <div class="item-grid" id="itemGrid">
+            {% comment %} 
+              建立同目錄檔案名稱 -> 標題 / 角色的對照，用於下方「相關資源」子連結顯示
+            {% endcomment %}
+            {% assign sorted_pages = site.pages | sort: "title" %}
+            
+            {% for p in sorted_pages %}
+                {% if p.dir == page.dir and p.url != page.url and p.type != "redirect_page" %}
+                    {% assign p_title = p.title | default: p.name %}
+                    {% assign p_role = p.role | default: "primary" %}
+                    {% assign p_url = p.url | prepend: site.baseurl %}
+                    {% assign p_desc = p.description | strip | default: "沒有描述" %}
+                    
+                    {% if p_role == "supplementary" %}
+                        {% assign icon_name = "book-open" %}
+                        {% assign icon_class = "icon-supplementary" %}
+                        {% assign badge_class = "tag-supplementary" %}
+                        {% assign label_text = "補充資料" %}
+                    {% else %}
+                        {% assign icon_name = "bookmark" %}
+                        {% assign icon_class = "icon-primary" %}
+                        {% assign badge_class = "tag-primary" %}
+                        {% assign label_text = "主要內容" %}
+                    {% endif %}
+                    
+                    <div class="card-wrap" data-tab="{{ p_role }}" data-title="{{ p_title | downcase }}">
+                        <div class="card-main">
+                            <div class="item-icon-wrap {{ icon_class }}">
+                                <i data-lucide="{{ icon_name }}" style="width:15px;height:15px;"></i>
+                            </div>
+                            <div class="card-body">
+                                <div class="card-title-row">
+                                    <a class="card-title" href="{{ p_url }}">
+                                        {{ p_title }}
+                                        <i data-lucide="arrow-up-right" style="width:14px;height:14px;"></i>
+                                    </a>
+                                    <div class="card-meta">
+                                        {% if p.tags %}
+                                            {% for t in p.tags %}
+                                                <span class="tag-badge tag-custom">{{ t }}</span>
+                                            {% endfor %}
+                                        {% endif %}
+                                        <span class="tag-badge {{ badge_class }}">{{ label_text }}</span>
+                                        <span class="file-chip">{{ p.name }}</span>
+                                    </div>
+                                </div>
+                                <div class="card-desc">{{ p_desc }}</div>
+                            </div>
+                        </div>
+                        
+                        {% if p.related and p.related.size > 0 %}
+                            <div class="sub-section">
+                                <div class="sub-section-label">相關資源</div>
+                                <div class="sub-link-list">
+                                    {% for rel in p.related %}
+                                        {% comment %}
+                                          在所有頁面中尋找對應名稱的頁面，抓取其實際 Title 與 Role
+                                        {% endcomment %}
+                                        {% assign rel_found_title = rel %}
+                                        {% assign rel_found_role = "primary" %}
+                                        {% for target in site.pages %}
+                                            {% if target.dir == page.dir and target.name == rel %}
+                                                {% assign rel_found_title = target.title | default: target.name %}
+                                                {% assign rel_found_role = target.role | default: "primary" %}
+                                                {% break %}
+                                            {% endif %}
+                                        {% endfor %}
+                                        
+                                        {% if rel_found_role == "supplementary" %}
+                                            {% assign rel_label = "補充資料" %}
+                                        {% else %}
+                                            {% assign rel_label = "主要內容" %}
+                                        {% endif %}
+                                        
+                                        {% assign rel_url = rel | prepend: page.dir | prepend: site.baseurl %}
+                                        
+                                        <a href="{{ rel_url }}" class="sub-link-row">
+                                            <span class="sub-link-left">
+                                                <i data-lucide="file-text" style="width:14px;height:14px;"></i>
+                                                <span class="sub-link-text">{{ rel_found_title }}</span>
+                                            </span>
+                                            <span class="sub-badge sub-{{ rel_found_role }}">{{ rel_label }}</span>
+                                        </a>
+                                    {% endfor %}
+                                </div>
+                            </div>
+                        {% endif %}
+                    </div>
+                {% endif %}
+            {% endfor %}
+        </div>
 
         <!-- 無結果提示 -->
         <div id="noResults">
@@ -551,124 +652,18 @@ layout: null
             localStorage.setItem('ignore_width', isChecked ? 'true' : 'false');
         }
     }
-    // ── Liquid 注入資料 ──────────────────────────────────────────
-    const currentPageDir = {{ page.dir | jsonify }};
-    const siteBaseUrl    = {{ site.baseurl | default: "" | jsonify }};
 
-    // 建立 related 檔名 → 標題 / role 的對照表
-    const titleMap = {};
-    const roleMap  = {};
-    {% for p in site.pages %}
-        {% if p.dir == page.dir and p.url != page.url and p.type != "redirect_page"%}
-        titleMap[{{ p.name | jsonify }}] = {{ p.title | default: p.name | jsonify }};
-        roleMap[{{ p.name | jsonify }}]  = {{ p.role  | default: "primary" | jsonify }};
-        {% endif %}
-    {% endfor %}
-
-    const allPagesData = [];
-    {% for p in site.pages %}
-        {% if p.dir == page.dir and p.url != page.url and p.type != "redirect_page"%}
-        allPagesData.push({
-            name:        {{ p.name        | jsonify }},
-            url:         {{ p.url         | prepend: site.baseurl | jsonify }},
-            title:       {{ p.title       | default: p.name | jsonify }},
-            description: {{ p.description | default: "沒有描述" | jsonify }},
-            role:        {{ p.role        | default: "primary" | jsonify }},
-            related:     {% if p.related %}{{ p.related | jsonify }}{% else %}[]{% endif %},
-            tags:        {% if p.tags %}{{ p.tags | jsonify }}{% else %}[]{% endif %}
-        });
-        {% endif %}
-    {% endfor %}
-
-    // 按 title 排序
-    allPagesData.sort((a, b) => a.title.localeCompare(b.title, 'zh-Hant'));
-
-    // ── DOM 建構 ────────────────────────────────────────────────
-    const ROLE_CONFIG = {
-        primary:      { icon: 'bookmark',  label: '主要內容', iconClass: 'icon-primary',      badgeClass: 'tag-primary' },
-        supplementary:{ icon: 'book-open', label: '補充資料', iconClass: 'icon-supplementary', badgeClass: 'tag-supplementary' }
-    };
-
-    function esc(str) {
-        return String(str)
-            .replace(/&/g,'&amp;').replace(/</g,'&lt;')
-            .replace(/>/g,'&gt;').replace(/"/g,'&quot;');
-    }
-
-    function buildCard(p) {
-        const cfg      = ROLE_CONFIG[p.role] || ROLE_CONFIG.primary;
-        const filename = p.name;
-
-        const relatedHTML = p.related.length ? `
-            <div class="sub-section">
-                <div class="sub-section-label">相關資源</div>
-                <div class="sub-link-list">
-                    ${p.related.map(rel => {
-                        const relTitle = titleMap[rel]       || rel;
-                        const relRole  = roleMap[rel]        || 'primary';
-                        const relCfg   = ROLE_CONFIG[relRole] || ROLE_CONFIG.primary;
-                        const relUrl   = siteBaseUrl + currentPageDir + rel;
-                        return `<a href="${esc(relUrl)}" class="sub-link-row">
-                            <span class="sub-link-left">
-                                <i data-lucide="file-text" style="width:14px;height:14px;"></i>
-                                <span class="sub-link-text">${esc(relTitle)}</span>
-                            </span>
-                            <span class="sub-badge sub-${relRole}">${relCfg.label}</span>
-                        </a>`;
-                    }).join('')}
-                </div>
-            </div>` : '';
-
-        // 處理空白或缺失的描述為「沒有描述」
-        const rawDesc = p.description ? p.description.trim() : '';
-        const descText = rawDesc !== '' ? rawDesc : '沒有描述';
-        const descHTML = `<div class="card-desc">${esc(descText)}</div>`;
-
-        // 處理自訂 Tags 標籤
-        const tagsHTML = (p.tags && p.tags.length) ? p.tags.map(tag => {
-            return `<span class="tag-badge tag-custom">${esc(tag)}</span>`;
-        }).join('') : '';
-		
-        const wrap = document.createElement('div');
-        wrap.className = 'card-wrap';
-        wrap.dataset.tab   = p.role || 'primary';
-        wrap.dataset.title = p.title.toLowerCase();
-        wrap.innerHTML = `
-            <div class="card-main">
-                <div class="item-icon-wrap ${cfg.iconClass}">
-                    <i data-lucide="${cfg.icon}" style="width:15px;height:15px;"></i>
-                </div>
-                <div class="card-body">
-                    <div class="card-title-row">
-                        <a class="card-title" href="${esc(p.url)}">
-                            ${esc(p.title)}
-                            <i data-lucide="arrow-up-right" style="width:14px;height:14px;"></i>
-                        </a>
-                        <div class="card-meta">
-						    ${tagsHTML}
-                            <span class="tag-badge ${cfg.badgeClass}">${cfg.label}</span>
-                            <span class="file-chip">${esc(filename)}</span>
-                        </div>
-                    </div>
-                    ${descHTML}
-                </div>
-            </div>
-            ${relatedHTML}`;
-        return wrap;
-    }
-
-    const grid = document.getElementById('itemGrid');
-    allPagesData.forEach(p => grid.appendChild(buildCard(p)));
+    // ── 初始化 Lucide 圖標 ──
     lucide.createIcons();
 
-    // ── Tab / 搜尋邏輯 ───────────────────────────────────────────
+    // ── Tab / 搜尋過濾邏輯（直接控制畫面上已有 DOM，速度極快） ──
     const noRes    = document.getElementById('noResults');
     const cntBadge = document.getElementById('countBadge');
     const secTitle = document.getElementById('sectionTitle');
     const tabLabels = { all: '所有內容總覽', primary: '主要內容總覽', supplementary: '補充資料總覽' };
     let currentTab = 'all', searchQ = '';
 
-    function run() {
+    function runFilter() {
         const cards = Array.from(document.querySelectorAll('.card-wrap'));
         let visible = 0;
         cards.forEach(card => {
@@ -682,21 +677,24 @@ layout: null
         secTitle.textContent = tabLabels[currentTab];
     }
 
+    // Tab 切換事件監聽
     document.getElementById('mainTabs').addEventListener('click', e => {
         const btn = e.target.closest('.tab-btn');
         if (!btn) return;
         document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
         btn.classList.add('active');
         currentTab = btn.dataset.tab;
-        run();
+        runFilter();
     });
 
+    // 搜尋輸入監聽
     document.getElementById('searchInput').addEventListener('input', e => {
         searchQ = e.target.value.toLowerCase().trim();
-        run();
+        runFilter();
     });
 
-    run();
+    // 頁面初次載入時執行一次過濾以初始化計數器與標題
+    runFilter();
 
     // ── 滾動事件（回到頁首與黑暗模式按鈕位移） ──
     (function() {
