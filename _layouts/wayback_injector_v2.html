@@ -1,301 +1,302 @@
 {% assign dir_parts = page.dir | split: "/" %}
 {% assign dir_last = dir_parts | last %}
 {% if dir_last == nil or dir_last == "" %}
-  {% assign current_dir_name = site.github.repository_name %}
+    {% assign current_dir_name = site.github.repository_name %}
 {% else %}
-  {% assign current_dir_name = dir_last %}
+    {% assign current_dir_name = dir_last %}
 {% endif %}
 {% assign page_title = page.title | default: current_dir_name %}
 
 {%- capture og_tags -%}
-  <!-- Wayback Injector: Open Graph Tags -->
-  <meta property="og:type" content="article" />
-  <meta property="og:title" content="{{ page_title | escape }}" />
-  <meta property="og:description" content="{{ page.description | default: site.description | strip_html | strip_newlines | truncate: 160 }}" />
-  <meta property="og:url" content="{{ page.url | absolute_url }}" />
-  <meta property="og:site_name" content="{{ site.github.repository_nwo }} - github.io" />
-  <meta property="og:image" content="https://github.com/{{ site.github.owner_name }}.png?size=630" />
-  <meta name="twitter:card" content="summary" />
-  <meta name="twitter:title" content="{{ page_title | escape }}" />
-  <meta name="twitter:description" content="{{ page.description | default: site.description | strip_html | strip_newlines | truncate: 160 }}" />
+    <!-- Wayback Injector: Open Graph Tags -->
+    <meta property="og:type" content="article" />
+    <meta property="og:title" content="{{ page_title | escape }}" />
+    <meta property="og:description" content="{{ page.description | default: site.description | strip_html | strip_newlines | truncate: 160 }}" />
+    <meta property="og:url" content="{{ page.url | absolute_url }}" />
+	<link rel="canonical" href="{{ page.url | absolute_url }}" />
+    <meta property="og:site_name" content="{{ site.github.repository_nwo }} - github.io" />
+    <meta property="og:image" content="https://github.com/{{ site.github.owner_name }}.png?size=630" />
+    <meta name="twitter:card" content="summary" />
+    <meta name="twitter:title" content="{{ page_title | escape }}" />
+    <meta name="twitter:description" content="{{ page.description | default: site.description | strip_html | strip_newlines | truncate: 160 }}" />
 {%- endcapture -%}
 
 {%- capture control_panel -%}
-  <!-- Wayback Injector: Control Panel & Page Data -->
-  <script>
-    window.pageData = {
-      role: "{{ page.role | default: 'primary' }}",
-      title: "{{ page.title | escape }}",
-      defaultName: "{{ page.name | escape }}",
-      description: "{{ page.description | escape }}",
-      related: [
-        {% for item in page.related %}
-          "{{ item }}"{% unless forloop.last %},{% endunless %}
-        {% endfor %}
-      ]
-    };
-  </script>
+    <!-- Wayback Injector: Control Panel & Page Data -->
+    <script>
+        window.pageData = {
+            role: "{{ page.role | default: 'primary' }}",
+            title: "{{ page.title | escape }}",
+            defaultName: "{{ page.name | escape }}",
+            description: "{{ page.description | escape }}",
+            related: [
+                {% for item in page.related %}
+                    "{{ item }}"{% unless forloop.last %},{% endunless %}
+                {% endfor %}
+            ]
+        };
+    </script>
 
-  <div id="wayback-control-bar">
-    <div class="wb-meta-zone">
-      <div id="wb-icon-container"></div>
-      <div class="wb-text-content">
-        <div class="wb-title-wrapper">
-          <span id="wb-title">載入中...</span>
+    <div id="wayback-control-bar">
+        <div class="wb-meta-zone">
+            <div id="wb-icon-container"></div>
+            <div class="wb-text-content">
+                <div class="wb-title-wrapper">
+                    <span id="wb-title">載入中...</span>
+                </div>
+                <div id="wb-desc"></div>
+            </div>
         </div>
-        <div id="wb-desc"></div>
-      </div>
+
+        <div class="wb-related-zone">
+            <div id="wb-related-links"></div>
+        </div>
+
+        <div class="wb-actions-zone">
+            <button onclick="history.back()" class="wb-back-btn">← 回上一頁</button>
+        </div>
     </div>
 
-    <div class="wb-related-zone">
-      <div id="wb-related-links"></div>
-    </div>
+    <div id="wayback-trigger-zone"></div>
 
-    <div class="wb-actions-zone">
-      <button onclick="history.back()" class="wb-back-btn">← 回上一頁</button>
-    </div>
-  </div>
+    <style>
+        /* ==========================================================================
+             1. 預設樣式（桌面端電腦版：左資訊、中連結、右按鈕）
+             ========================================================================== */
+        #wayback-control-bar {
+            position: fixed !important;
+            top: 0 !important; left: 0 !important;
+            width: 100% !important; height: 75px !important;
+            background: #111827 !important;
+            border-bottom: 1px solid #1f2937 !important;
+            color: #fff !important;
+            z-index: 2147483647 !important;
+            display: flex !important; 
+            flex-direction: row !important;
+            align-items: center !important; 
+            justify-content: space-between !important;
+            padding: 0 24px !important; box-sizing: border-box !important;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif !important;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.5) !important;
+            transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1) !important;
+            transform: translateY(0);
+            pointer-events: auto !important;
+        }
 
-  <div id="wayback-trigger-zone"></div>
+        #wayback-control-bar.is-hidden { transform: translateY(-85px) !important; pointer-events: none !important; }
 
-  <style>
-    /* ==========================================================================
-       1. 預設樣式（桌面端電腦版：左資訊、中連結、右按鈕）
-       ========================================================================== */
-    #wayback-control-bar {
-      position: fixed !important;
-      top: 0 !important; left: 0 !important;
-      width: 100% !important; height: 75px !important;
-      background: #111827 !important;
-      border-bottom: 1px solid #1f2937 !important;
-      color: #fff !important;
-      z-index: 2147483647 !important;
-      display: flex !important; 
-      flex-direction: row !important;
-      align-items: center !important; 
-      justify-content: space-between !important;
-      padding: 0 24px !important; box-sizing: border-box !important;
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif !important;
-      box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.5) !important;
-      transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1) !important;
-      transform: translateY(0);
-      pointer-events: auto !important;
-    }
+        #wayback-trigger-zone {
+            position: fixed !important;
+            top: 0 !important; left: 0 !important;
+            width: 100% !important; height: 6px !important;
+            background: transparent !important;
+            z-index: 2147483646 !important;
+            pointer-events: auto !important;
+        }
 
-    #wayback-control-bar.is-hidden { transform: translateY(-85px) !important; pointer-events: none !important; }
+        /* 左側：圖示與文字 */
+        .wb-meta-zone { display: flex !important; align-items: center !important; gap: 14px !important; max-width: 35% !important; order: 1 !important; }
+        .item-icon-wrap { width: 36px !important; height: 36px !important; border-radius: 6px !important; display: flex !important; align-items: center !important; justify-content: center !important; flex-shrink: 0 !important; }
+        .item-icon-wrap.icon-primary { background: #1e3a8a !important; color: #60a5fa !important; }
+        .item-icon-wrap.icon-supplementary { background: #14532d !important; color: #4ade80 !important; }
+        .wb-text-content { display: flex !important; flex-direction: column !important; gap: 4px !important; }
+        #wb-title { font-size: 16px !important; font-weight: 600 !important; color: #f3f4f6 !important; white-space: nowrap !important; overflow: hidden !important; text-overflow: ellipsis !important; }
+        #wb-desc { font-size: 13px !important; color: #9ca3af !important; white-space: nowrap !important; overflow: hidden !important; text-overflow: ellipsis !important; }
 
-    #wayback-trigger-zone {
-      position: fixed !important;
-      top: 0 !important; left: 0 !important;
-      width: 100% !important; height: 6px !important;
-      background: transparent !important;
-      z-index: 2147483646 !important;
-      pointer-events: auto !important;
-    }
+        /* 中間：相關連結 */
+        .wb-related-zone { max-width: 45% !important; display: flex !important; align-items: center !important; overflow: hidden !important; order: 2 !important; }
+        #wb-related-links { display: flex !important; flex-direction: row !important; gap: 12px !important; padding: 4px 0 !important; white-space: nowrap !important; }
+        .wb-link-item { color: #f3f4f6 !important; text-decoration: none !important; font-size: 13px !important; font-weight: 500 !important; display: inline-flex !important; align-items: center !important; gap: 8px !important; background: #1f2937 !important; border: 1px solid #374151 !important; padding: 6px 14px !important; border-radius: 20px !important; transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1) !important; white-space: nowrap !important; }
+        .wb-link-item:hover { background: #374151 !important; border-color: #4b5563 !important; transform: translateY(-1px) !important; }
+        .wb-doc-icon-svg { width: 14px !important; height: 14px !important; color: #9ca3af !important; flex-shrink: 0 !important; }
 
-    /* 左側：圖示與文字 */
-    .wb-meta-zone { display: flex !important; align-items: center !important; gap: 14px !important; max-width: 35% !important; order: 1 !important; }
-    .item-icon-wrap { width: 36px !important; height: 36px !important; border-radius: 6px !important; display: flex !important; align-items: center !important; justify-content: center !important; flex-shrink: 0 !important; }
-    .item-icon-wrap.icon-primary { background: #1e3a8a !important; color: #60a5fa !important; }
-    .item-icon-wrap.icon-supplementary { background: #14532d !important; color: #4ade80 !important; }
-    .wb-text-content { display: flex !important; flex-direction: column !important; gap: 4px !important; }
-    #wb-title { font-size: 16px !important; font-weight: 600 !important; color: #f3f4f6 !important; white-space: nowrap !important; overflow: hidden !important; text-overflow: ellipsis !important; }
-    #wb-desc { font-size: 13px !important; color: #9ca3af !important; white-space: nowrap !important; overflow: hidden !important; text-overflow: ellipsis !important; }
+        /* 右側：返回按鈕 */
+        .wb-actions-zone { order: 3 !important; }
+        .wb-back-btn { background: #1f2937 !important; color: #d1d5db !important; border: 1px solid #374151 !important; padding: 6px 14px !important; border-radius: 6px !important; cursor: pointer !important; font-size: 13px !important; transition: all 0.2s !important; white-space: nowrap !important; }
+        .wb-back-btn:hover { background: #374151 !important; color: #fff !important; }
 
-    /* 中間：相關連結 */
-    .wb-related-zone { max-width: 45% !important; display: flex !important; align-items: center !important; overflow: hidden !important; order: 2 !important; }
-    #wb-related-links { display: flex !important; flex-direction: row !important; gap: 12px !important; padding: 4px 0 !important; white-space: nowrap !important; }
-    .wb-link-item { color: #f3f4f6 !important; text-decoration: none !important; font-size: 13px !important; font-weight: 500 !important; display: inline-flex !important; align-items: center !important; gap: 8px !important; background: #1f2937 !important; border: 1px solid #374151 !important; padding: 6px 14px !important; border-radius: 20px !important; transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1) !important; white-space: nowrap !important; }
-    .wb-link-item:hover { background: #374151 !important; border-color: #4b5563 !important; transform: translateY(-1px) !important; }
-    .wb-doc-icon-svg { width: 14px !important; height: 14px !important; color: #9ca3af !important; flex-shrink: 0 !important; }
+        /* ==========================================================================
+             2. RWD 移動端專屬響應式樣式 (螢幕寬度 768px 以下)
+             ========================================================================== */
+        @media (max-width: 768px) {
+            #wayback-control-bar {
+                flex-direction: column !important;
+                align-items: flex-start !important;
+                height: auto !important; 
+                padding: 14px 16px !important;
+                gap: 12px !important;
+            }
 
-    /* 右側：返回按鈕 */
-    .wb-actions-zone { order: 3 !important; }
-    .wb-back-btn { background: #1f2937 !important; color: #d1d5db !important; border: 1px solid #374151 !important; padding: 6px 14px !important; border-radius: 6px !important; cursor: pointer !important; font-size: 13px !important; transition: all 0.2s !important; white-space: nowrap !important; }
-    .wb-back-btn:hover { background: #374151 !important; color: #fff !important; }
+            #wayback-control-bar.is-hidden {
+                transform: translateY(-180px) !important; 
+            }
 
-    /* ==========================================================================
-       2. RWD 移動端專屬響應式樣式 (螢幕寬度 768px 以下)
-       ========================================================================== */
-    @media (max-width: 768px) {
-      #wayback-control-bar {
-        flex-direction: column !important;
-        align-items: flex-start !important;
-        height: auto !important; 
-        padding: 14px 16px !important;
-        gap: 12px !important;
-      }
+            #wayback-trigger-zone {
+                height: 50px !important;
+            }
 
-      #wayback-control-bar.is-hidden {
-        transform: translateY(-180px) !important; 
-      }
+            .wb-actions-zone {
+                display: none !important;
+            }
 
-      #wayback-trigger-zone {
-        height: 50px !important;
-      }
+            .wb-meta-zone {
+                width: 100% !important;
+                max-width: 100% !important;
+                display: flex !important;
+                flex-direction: row !important;
+                align-items: flex-start !important;
+                gap: 12px !important;
+            }
 
-      .wb-actions-zone {
-        display: none !important;
-      }
+            .item-icon-wrap {
+                display: flex !important;
+                margin-top: 2px !important; 
+            }
 
-      .wb-meta-zone {
-        width: 100% !important;
-        max-width: 100% !important;
-        display: flex !important;
-        flex-direction: row !important;
-        align-items: flex-start !important;
-        gap: 12px !important;
-      }
+            .wb-text-content {
+                flex-grow: 1 !important;
+                min-width: 0 !important;
+            }
 
-      .item-icon-wrap {
-        display: flex !important;
-        margin-top: 2px !important; 
-      }
+            #wb-title { 
+                font-size: 15px !important; 
+                white-space: normal !important; 
+                overflow: visible !important;
+                text-overflow: clip !important;
+            }
+            #wb-desc { 
+                font-size: 12px !important; 
+                white-space: normal !important; 
+                overflow: visible !important;
+                text-overflow: clip !important;
+                margin-top: 2px !important;
+            }
 
-      .wb-text-content {
-        flex-grow: 1 !important;
-        min-width: 0 !important;
-      }
+            .wb-related-zone {
+                width: 100% !important;
+                max-width: 100% !important;
+                overflow: hidden !important;
+            }
 
-      #wb-title { 
-        font-size: 15px !important; 
-        white-space: normal !important; 
-        overflow: visible !important;
-        text-overflow: clip !important;
-      }
-      #wb-desc { 
-        font-size: 12px !important; 
-        white-space: normal !important; 
-        overflow: visible !important;
-        text-overflow: clip !important;
-        margin-top: 2px !important;
-      }
+            #wb-related-links {
+                width: 100% !important;
+                display: flex !important;
+                flex-direction: row !important;
+                white-space: nowrap !important; 
+                overflow-x: auto !important; 
+                -webkit-overflow-scrolling: touch !important; 
+                padding-bottom: 4px !important; 
+            }
 
-      .wb-related-zone {
-        width: 100% !important;
-        max-width: 100% !important;
-        overflow: hidden !important;
-      }
+            .wb-link-item { 
+                padding: 6px 12px !important; 
+                font-size: 12px !important; 
+                white-space: nowrap !important; 
+                flex-shrink: 0 !important; 
+            }
+        }
+    </style>
 
-      #wb-related-links {
-        width: 100% !important;
-        display: flex !important;
-        flex-direction: row !important;
-        white-space: nowrap !important; 
-        overflow-x: auto !important; 
-        -webkit-overflow-scrolling: touch !important; 
-        padding-bottom: 4px !important; 
-      }
+    <script>
+    (function() {
+        const INITIAL_DELAY = 2000; 
+        const HOVER_DELAY = 3000;     
+        let hideTimeout;
+        let isPanelVisible = true;
 
-      .wb-link-item { 
-        padding: 6px 12px !important; 
-        font-size: 12px !important; 
-        white-space: nowrap !important; 
-        flex-shrink: 0 !important; 
-      }
-    }
-  </style>
+        const isMobile = /Mobi|Android|iPhone|iPad/i.test(navigator.userAgent);
 
-  <script>
-  (function() {
-    const INITIAL_DELAY = 2000; 
-    const HOVER_DELAY = 3000;   
-    let hideTimeout;
-    let isPanelVisible = true;
+        const panel = document.getElementById('wayback-control-bar');
+        const triggerZone = document.getElementById('wayback-trigger-zone');
 
-    const isMobile = /Mobi|Android|iPhone|iPad/i.test(navigator.userAgent);
+        const primarySvg = `
+            <div class="item-icon-wrap icon-primary">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:15px;height:15px;"><path d="M17 3a2 2 0 0 1 2 2v15a1 1 0 0 1-1.496.868l-4.512-2.578a2 2 0 0 0-1.984 0l-4.512 2.578A1 1 0 0 1 5 20V5a2 2 0 0 1 2-2z"></path></svg>
+            </div>`;
 
-    const panel = document.getElementById('wayback-control-bar');
-    const triggerZone = document.getElementById('wayback-trigger-zone');
+        const supplementarySvg = `
+            <div class="item-icon-wrap icon-supplementary">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:15px;height:15px;"><path d="M12 7v14"></path><path d="M3 18a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1h5a4 4 0 0 1 4 4 4 4 0 0 1 4-4h5a1 1 0 0 1 1 1v13a1 1 0 0 1-1 1h-6a3 3 0 0 0-3 3 3 3 0 0 0-3-3z"></path></svg>
+            </div>`;
 
-    const primarySvg = `
-      <div class="item-icon-wrap icon-primary">
-        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:15px;height:15px;"><path d="M17 3a2 2 0 0 1 2 2v15a1 1 0 0 1-1.496.868l-4.512-2.578a2 2 0 0 0-1.984 0l-4.512 2.578A1 1 0 0 1 5 20V5a2 2 0 0 1 2-2z"></path></svg>
-      </div>`;
+        const flatDocSvg = `
+            <svg class="wb-doc-icon-svg" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"/>
+                <path d="M14 2v4a2 2 0 0 0 2 2h4"/>
+                <path d="M10 9H8"/>
+                <path d="M16 13H8"/>
+                <path d="M16 17H8"/>
+            </svg>`;
 
-    const supplementarySvg = `
-      <div class="item-icon-wrap icon-supplementary">
-        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:15px;height:15px;"><path d="M12 7v14"></path><path d="M3 18a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1h5a4 4 0 0 1 4 4 4 4 0 0 1 4-4h5a1 1 0 0 1 1 1v13a1 1 0 0 1-1 1h-6a3 3 0 0 0-3 3 3 3 0 0 0-3-3z"></path></svg>
-      </div>`;
+        function initPanelData() {
+            if (window.pageData) {
+                const iconContainer = document.getElementById('wb-icon-container');
+                iconContainer.innerHTML = window.pageData.role === 'supplementary' ? supplementarySvg : primarySvg;
 
-    const flatDocSvg = `
-      <svg class="wb-doc-icon-svg" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-        <path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"/>
-        <path d="M14 2v4a2 2 0 0 0 2 2h4"/>
-        <path d="M10 9H8"/>
-        <path d="M16 13H8"/>
-        <path d="M16 17H8"/>
-      </svg>`;
+                const pageTitle = window.pageData.title.trim();
+                document.getElementById('wb-title').textContent = pageTitle !== "" ? pageTitle : window.pageData.defaultName;
 
-    function initPanelData() {
-      if (window.pageData) {
-        const iconContainer = document.getElementById('wb-icon-container');
-        iconContainer.innerHTML = window.pageData.role === 'supplementary' ? supplementarySvg : primarySvg;
+                const pageDesc = window.pageData.description.trim();
+                document.getElementById('wb-desc').textContent = pageDesc !== "" ? pageDesc : "沒有描述";
+                
+                const relatedContainer = document.getElementById('wb-related-links');
+                if (window.pageData.related && window.pageData.related.length > 0) {
+                    relatedContainer.innerHTML = '';
+                    window.pageData.related.forEach(function(linkText) {
+                        const a = document.createElement('a');
+                        a.className = 'wb-link-item';
+                        a.href = linkText;
+                        a.innerHTML = flatDocSvg + '<span>' + linkText + '</span>';
+                        relatedContainer.appendChild(a);
+                    });
+                } else {
+                    relatedContainer.innerHTML = '<span style="color:#4b5563; font-size:13px;">No related archives</span>';
+                }
+            }
+        }
 
-        const pageTitle = window.pageData.title.trim();
-        document.getElementById('wb-title').textContent = pageTitle !== "" ? pageTitle : window.pageData.defaultName;
+        function hidePanel() { panel.classList.add('is-hidden'); isPanelVisible = false; }
+        function showPanel() { panel.classList.remove('is-hidden'); isPanelVisible = true; resetTimer(HOVER_DELAY); }
+        function resetTimer(delay) { clearTimeout(hideTimeout); hideTimeout = setTimeout(hidePanel, delay); }
 
-        const pageDesc = window.pageData.description.trim();
-        document.getElementById('wb-desc').textContent = pageDesc !== "" ? pageDesc : "沒有描述";
-        
-        const relatedContainer = document.getElementById('wb-related-links');
-        if (window.pageData.related && window.pageData.related.length > 0) {
-          relatedContainer.innerHTML = '';
-          window.pageData.related.forEach(function(linkText) {
-            const a = document.createElement('a');
-            a.className = 'wb-link-item';
-            a.href = linkText;
-            a.innerHTML = flatDocSvg + '<span>' + linkText + '</span>';
-            relatedContainer.appendChild(a);
-          });
+        if (isMobile) {
+            let lastTap = 0;
+            triggerZone.addEventListener('touchend', function(e) {
+                const currentTime = new Date().getTime();
+                const tapLength = currentTime - lastTap;
+                if (tapLength < 300 && tapLength > 0) {
+                    showPanel();
+                    e.preventDefault();
+                }
+                lastTap = currentTime;
+            });
+
+            panel.addEventListener('touchstart', () => clearTimeout(hideTimeout));
+            panel.addEventListener('touchend', () => resetTimer(HOVER_DELAY));
+
         } else {
-          relatedContainer.innerHTML = '<span style="color:#4b5563; font-size:13px;">No related archives</span>';
+            triggerZone.addEventListener('mouseenter', showPanel);
+            panel.addEventListener('mouseenter', () => clearTimeout(hideTimeout));
+            panel.addEventListener('mouseleave', () => resetTimer(HOVER_DELAY));
         }
-      }
-    }
 
-    function hidePanel() { panel.classList.add('is-hidden'); isPanelVisible = false; }
-    function showPanel() { panel.classList.remove('is-hidden'); isPanelVisible = true; resetTimer(HOVER_DELAY); }
-    function resetTimer(delay) { clearTimeout(hideTimeout); hideTimeout = setTimeout(hidePanel, delay); }
+        const clickEvent = isMobile ? 'touchstart' : 'click';
+        document.addEventListener(clickEvent, function(event) {
+            if (isPanelVisible) {
+                const isClickInsidePanel = panel.contains(event.target);
+                const isClickInsideTrigger = triggerZone.contains(event.target);
+                if (!isClickInsidePanel && !isClickInsideTrigger) {
+                    resetTimer(200); 
+                }
+            }
+        });
 
-    if (isMobile) {
-      let lastTap = 0;
-      triggerZone.addEventListener('touchend', function(e) {
-        const currentTime = new Date().getTime();
-        const tapLength = currentTime - lastTap;
-        if (tapLength < 300 && tapLength > 0) {
-          showPanel();
-          e.preventDefault();
-        }
-        lastTap = currentTime;
-      });
-
-      panel.addEventListener('touchstart', () => clearTimeout(hideTimeout));
-      panel.addEventListener('touchend', () => resetTimer(HOVER_DELAY));
-
-    } else {
-      triggerZone.addEventListener('mouseenter', showPanel);
-      panel.addEventListener('mouseenter', () => clearTimeout(hideTimeout));
-      panel.addEventListener('mouseleave', () => resetTimer(HOVER_DELAY));
-    }
-
-    const clickEvent = isMobile ? 'touchstart' : 'click';
-    document.addEventListener(clickEvent, function(event) {
-      if (isPanelVisible) {
-        const isClickInsidePanel = panel.contains(event.target);
-        const isClickInsideTrigger = triggerZone.contains(event.target);
-        if (!isClickInsidePanel && !isClickInsideTrigger) {
-          resetTimer(200); 
-        }
-      }
-    });
-
-    document.addEventListener('DOMContentLoaded', function() {
-      initPanelData();
-      resetTimer(INITIAL_DELAY);
-    });
-  })();
-  </script>
+        document.addEventListener('DOMContentLoaded', function() {
+            initPanelData();
+            resetTimer(INITIAL_DELAY);
+        });
+    })();
+    </script>
 {%- endcapture -%}
 
 {%- assign replaced_head = og_tags | append: "</head>" -%}
