@@ -255,7 +255,7 @@ description: "收錄並歸檔所有學習過程中用於輔助理解產生的多
 
 {% assign total_articles = 0 %}
 {% for p in site.pages %}
-    {% if p.type != "category_index" and p.url != "/" and p.url != "/index.html" and p.type != "redirect_page"%}
+    {% if p.type != "category_index" and p.url != "/" and p.url != "/index.html" and p.dir != "/" and p.type != "redirect_page"%}
         {% assign total_articles = total_articles | plus: 1 %}
     {% endif %}
 {% endfor %}
@@ -264,6 +264,9 @@ description: "收錄並歸檔所有學習過程中用於輔助理解產生的多
 {% assign category_pages_sorted = category_pages | sort: "title" %}
 
 <div class="portal-wrapper">
+{% for p in site.pages %}
+	{{ p.url }} | dir: {{ p.dir }} | type: {{ p.type }}
+{% endfor %}
 
     <!-- 頂部導航欄 -->
     <nav class="navbar">
