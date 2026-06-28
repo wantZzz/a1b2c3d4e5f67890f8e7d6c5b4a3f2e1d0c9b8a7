@@ -3,15 +3,30 @@ layout: null
 ---
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-  {%- for page in site.pages -%}
-    {%- if page.path contains '.html' and page.layout != nil and page.layout != 'redirect' and page.sitemap != false -%}
-      <url>
-        {%- if page.path contains 'index.html' -%}
-          <loc>https://wantzzz.github.io/a1b2c3d4e5f67890f8e7d6c5b4a3f2e1d0c9b8a7{{ page.url | replace: 'index.html', '' }}</loc>
-        {%- else -%}
-          <loc>https://wantzzz.github.io/a1b2c3d4e5f67890f8e7d6c5b4a3f2e1d0c9b8a7{{ page.url }}</loc>
-        {%- endif -%}
-      </url>
-    {%- endif -%}
-  {%- endfor -%}
+
+  {%- comment %} 1. 列出含 index.html 的子目錄 {%- endcomment %}
+  {%- assign index_pages = site.html_pages
+      | where_exp: "p", "p.name == 'index.html'"
+      | where_exp: "p", "p.url != page.url" -%}
+  {%- for p in index_pages %}
+  <url>
+    <loc>{{ site.url }}{{ site.baseurl }}{{ p.url | replace: "index.html", "" }}</loc>
+  </url>
+  {%- endfor %}
+
+  {%- comment %} 2. 列出有 front matter、非 redirect_page 的 .html 頁面 {%- endcomment %}
+  {%- assign content_pages = site.html_pages
+      | where_exp: "p", "p.name != 'index.html'"
+      | where_exp: "p", "p.type != 'redirect_page'"
+      | where_exp: "p", "p.sitemap != false"
+      | where_exp: "p", "p.url != page.url" -%}
+  {%- for p in content_pages %}
+  <url>
+    <loc>{{ site.url }}{{ site.baseurl }}{{ p.url }}</loc>
+    {%- if p.last_modified_at %}
+    <lastmod>{{ p.last_modified_at | date_to_xmlschema }}</lastmod>
+    {%- endif %}
+  </url>
+  {%- endfor %}
+
 </urlset>
