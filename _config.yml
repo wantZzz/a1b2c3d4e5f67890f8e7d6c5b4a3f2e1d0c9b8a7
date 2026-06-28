@@ -1,0 +1,4 @@
+url: "https://wantzzz.github.io"
+baseurl: "/a1b2c3d4e5f67890f8e7d6c5b4a3f2e1d0c9b8a7"
+plugins:
+  - jekyll-sitemap
