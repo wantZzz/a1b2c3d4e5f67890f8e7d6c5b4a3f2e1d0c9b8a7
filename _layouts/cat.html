@@ -15,14 +15,13 @@ layout: null
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{{ page_title }} - {{ site.github.repository_name }}</title>
-    <script src="https://unpkg.com/lucide@latest"></script>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;700&display=swap" rel="stylesheet">
 	<meta property="og:site_name" content="{{ site.github.repository_nwo }} - github.io" />
 	<meta property="og:type" content="website" />
 	<meta property="og:title" content="{{ page_title }} - {{ site.github.repository_name }}" />
 	<meta property="og:description" content="{{ page.description | default: site.description | strip_html | strip_newlines | truncate: 160 }}" />
 	<meta property="og:url" content="{{ page.url | absolute_url }}" />
+	<link rel="canonical" href="{{ page.url | absolute_url }}" />
 	<meta property="og:image" content="https://github.com/{{ site.github.owner_name }}.png?size=630" />
 	
 	<meta name="twitter:card" content="summary" />
@@ -141,6 +140,7 @@ layout: null
         }
         .tab-btn:hover { color: var(--text-secondary); }
         .tab-btn.active { color: var(--text-primary); border-bottom-color: #4a6cf7; font-weight: 600; }
+        .tab-btn svg { flex-shrink: 0; }
 
         /* 右側勾選框區塊樣式 */
         .tab-control {
@@ -191,6 +191,7 @@ layout: null
             transition: border-color 0.3s;
         }
         .section-title { display: flex; align-items: center; gap: 7px; font-size: 13px; font-weight: 600; color: var(--text-secondary); }
+        .section-title svg { flex-shrink: 0; }
         .section-right {
             display: flex; align-items: center; gap: 8px;
             flex-wrap: wrap; justify-content: flex-end;
@@ -352,6 +353,7 @@ layout: null
         /* ── 無結果 ── */
         #noResults { padding: 48px 20px; text-align: center; color: var(--text-light); display: none; }
         #noResults p { font-size: 13px; margin-top: 8px; }
+        #noResults svg { margin: 0 auto 10px; display: block; color: var(--text-light); }
 
         /* ── Footer ── */
         .footer { text-align: center; margin-top: 24px; font-size: 12px; color: var(--text-muted); }
@@ -409,7 +411,7 @@ layout: null
     <div class="header-card">
         <div class="header-left">
             <div class="header-icon">
-                <i data-lucide="layers" style="width:18px;height:18px;"></i>
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 2 7 12 12 22 7 12 2"></polygon><polyline points="2 17 12 22 22 17"></polyline><polyline points="2 12 12 17 22 12"></polyline></svg>
             </div>
             <div>
                 <div class="header-title">{{ page_title }}</div>
@@ -417,7 +419,7 @@ layout: null
             </div>
         </div>
         <a class="back-btn" href="{{ page.dir | split: "/" | pop | join: "/" | prepend: "/" | append: "/" | relative_url }}">
-            <i data-lucide="corner-left-up" style="width:13px;height:13px;"></i>
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 14 4 9 9 4"></polyline><path d="M20 20v-7a4 4 0 0 0-4-4H4"></path></svg>
             上一層
         </a>
     </div>
@@ -429,13 +431,16 @@ layout: null
         <div class="tab-bar" id="mainTabs">
 			<div class="tab-group">
                 <button class="tab-btn active" data-tab="all">
-                    <i data-lucide="align-justify" style="width:14px;height:14px;"></i>所有內容
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
+                    所有內容
                 </button>
                 <button class="tab-btn" data-tab="primary">
-                    <i data-lucide="bookmark" style="width:14px;height:14px;"></i>主要內容
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"></path></svg>
+                    主要內容
                 </button>
                 <button class="tab-btn" data-tab="supplementary">
-                    <i data-lucide="book-open" style="width:14px;height:14px;"></i>補充資料
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"></path><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"></path></svg>
+                    補充資料
                 </button>
             </div>
             <!-- 右側無視寬度顯示所有標籤控制 -->
@@ -449,19 +454,19 @@ layout: null
         <!-- 區塊標題 + 搜尋 -->
         <div class="section-header">
             <div class="section-title">
-                <i data-lucide="layers" style="width:13px;height:13px;"></i>
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 2 7 12 12 22 7 12 2"></polygon><polyline points="2 17 12 22 22 17"></polyline><polyline points="2 12 12 17 22 12"></polyline></svg>
                 <span id="sectionTitle">所有內容總覽</span>
             </div>
             <div class="section-right">
                 <span class="count-badge" id="countBadge"></span>
                 <div class="search-wrap">
-                    <i data-lucide="search" style="width:13px;height:13px;"></i>
+                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
                     <input class="search-input" id="searchInput" placeholder="搜尋…" type="text">
                 </div>
             </div>
         </div>
 
-        <!-- 1欄 Grid：直接由 Liquid 進行靜態渲染（對 SEO 爬蟲極致友善，秒讀無延遲） -->
+        <!-- 1欄 Grid：直接由 Liquid 進行靜態渲染 -->
         <div class="item-grid" id="itemGrid">
             {% comment %} 
               建立同目錄檔案名稱 -> 標題 / 角色的對照，用於下方「相關資源」子連結顯示
@@ -476,12 +481,12 @@ layout: null
                     {% assign p_desc = p.description | strip | default: "沒有描述" %}
                     
                     {% if p_role == "supplementary" %}
-                        {% assign icon_name = "book-open" %}
+                        {% assign icon_svg = '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"></path><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"></path></svg>' %}
                         {% assign icon_class = "icon-supplementary" %}
                         {% assign badge_class = "tag-supplementary" %}
                         {% assign label_text = "補充資料" %}
                     {% else %}
-                        {% assign icon_name = "bookmark" %}
+                        {% assign icon_svg = '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"></path></svg>' %}
                         {% assign icon_class = "icon-primary" %}
                         {% assign badge_class = "tag-primary" %}
                         {% assign label_text = "主要內容" %}
@@ -490,13 +495,13 @@ layout: null
                     <div class="card-wrap" data-tab="{{ p_role }}" data-title="{{ p_title | downcase }}">
                         <div class="card-main">
                             <div class="item-icon-wrap {{ icon_class }}">
-                                <i data-lucide="{{ icon_name }}" style="width:15px;height:15px;"></i>
+                                {{ icon_svg }}
                             </div>
                             <div class="card-body">
                                 <div class="card-title-row">
                                     <a class="card-title" href="{{ p_url }}">
                                         {{ p_title }}
-                                        <i data-lucide="arrow-up-right" style="width:14px;height:14px;"></i>
+                                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="7" y1="17" x2="17" y2="7"></line><polyline points="7 7 17 7 17 17"></polyline></svg>
                                     </a>
                                     <div class="card-meta">
                                         {% if p.tags %}
@@ -540,7 +545,7 @@ layout: null
                                         
                                         <a href="{{ rel_url }}" class="sub-link-row">
                                             <span class="sub-link-left">
-                                                <i data-lucide="file-text" style="width:14px;height:14px;"></i>
+                                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
                                                 <span class="sub-link-text">{{ rel_found_title }}</span>
                                             </span>
                                             <span class="sub-badge sub-{{ rel_found_role }}">{{ rel_label }}</span>
@@ -556,7 +561,7 @@ layout: null
 
         <!-- 無結果提示 -->
         <div id="noResults">
-            <i data-lucide="search-x" style="width:26px;height:26px;margin:0 auto 10px;display:block;color:var(--text-light);"></i>
+            <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line><line x1="8" y1="11" x2="14" y2="11"></line></svg>
             <p>找不到符合的結果，請試試其他關鍵字。</p>
         </div>
 
@@ -564,12 +569,14 @@ layout: null
 
     <!-- 回頁首按鈕 -->
     <button id="backToTop" class="floating-btn" aria-label="回到頁首" onclick="window.scrollTo({top:0,behavior:'smooth'})">
-        <i data-lucide="chevron-up" style="width:18px;height:18px;"></i>
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="18 15 12 9 6 15"></polyline></svg>
     </button>
 
     <!-- 黑暗模式切換按鈕（動態追蹤回到頁首狀態，並向上推移） -->
     <button id="darkModeToggle" class="floating-btn" aria-label="切換黑暗模式" onclick="toggleDarkMode()">
-        <i id="themeIcon" data-lucide="moon" style="width:18px;height:18px;"></i>
+        <span id="themeIconContainer" style="display: flex; align-items: center; justify-content: center;">
+            <svg id="themeIcon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg>
+        </span>
     </button>
 
     <div class="footer">
@@ -578,11 +585,17 @@ layout: null
 </div>
 
 <script>
+    // SVG 代碼對照表
+    const svgIcons = {
+        sun: '<svg id="themeIcon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line></svg>',
+        moon: '<svg id="themeIcon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg>'
+    };
+
     // ── 黑暗模式控制器（支援 Cookie 存取） ──
     const htmlEl = document.documentElement;
-    const themeIcon = document.getElementById('themeIcon');
+    const themeIconContainer = document.getElementById('themeIconContainer');
 
-    // 寫入 Cookie 輔助函數 (設定為 365 天過期，path=/ 代表整站同網域皆可存取)
+    // 寫入 Cookie 輔助函數 (設定為 365 天過期)
     function setCookie(name, value, days) {
         let expires = "";
         if (days) {
@@ -611,10 +624,10 @@ layout: null
     
     if (savedTheme === 'dark' || (!savedTheme && prefersDark)) {
         htmlEl.classList.add('dark');
-        themeIcon.setAttribute('data-lucide', 'sun');
+        themeIconContainer.innerHTML = svgIcons.sun;
     } else {
         htmlEl.classList.remove('dark');
-        themeIcon.setAttribute('data-lucide', 'moon');
+        themeIconContainer.innerHTML = svgIcons.moon;
     }
 
     function toggleDarkMode() {
@@ -625,8 +638,8 @@ layout: null
         setCookie('theme', themeValue, 365);
         localStorage.setItem('theme', themeValue);
         
-        themeIcon.setAttribute('data-lucide', isDark ? 'sun' : 'moon');
-        lucide.createIcons();
+        // 替換 SVG 圖標
+        themeIconContainer.innerHTML = isDark ? svgIcons.sun : svgIcons.moon;
     }
 
     // ── 無視寬度限制顯示所有標籤控制 ──
@@ -653,10 +666,7 @@ layout: null
         }
     }
 
-    // ── 初始化 Lucide 圖標 ──
-    lucide.createIcons();
-
-    // ── Tab / 搜尋過濾邏輯（直接控制畫面上已有 DOM，速度極快） ──
+    // ── Tab / 搜尋過濾邏輯 ──
     const noRes    = document.getElementById('noResults');
     const cntBadge = document.getElementById('countBadge');
     const secTitle = document.getElementById('sectionTitle');
