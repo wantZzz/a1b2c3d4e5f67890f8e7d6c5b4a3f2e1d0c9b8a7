@@ -1,0 +1,14 @@
+---
+layout: null
+---
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  {%- for page in site.pages -%}
+    {%- if page.url contains '.html' and page.sitemap != false -%}
+      {%- assign clean_url = page.url | replace: '/index.html', '/' -%}
+      <url>
+        <loc>https://yourdomain.com/a1b2c3d4e5f67890f8e7d6c5b4a3f2e1d0c9b8a7{{ clean_url }}</loc>
+      </url>
+    {%- endif -%}
+  {%- endfor -%}
+</urlset>
