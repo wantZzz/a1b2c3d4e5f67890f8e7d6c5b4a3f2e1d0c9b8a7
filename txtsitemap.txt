@@ -1,0 +1,9 @@
+---
+layout: null
+---
+{% assign index_pages = site.html_pages | where_exp: "p", "p.name == 'index.html'" | where_exp: "p", "p.url != page.url" %}
+{% for p in index_pages %}{{ site.url }}{{ site.baseurl }}{{ p.url | replace: "index.html", "" }}
+{% endfor %}
+{% assign content_pages = site.html_pages | where_exp: "p", "p.name != 'index.html'" | where_exp: "p", "p.type != 'redirect_page'" | where_exp: "p", "p.sitemap != false" | where_exp: "p", "p.url != page.url" %}
+{% for p in content_pages %}{{ site.url }}{{ site.baseurl }}{{ p.url }}
+{% endfor %}
