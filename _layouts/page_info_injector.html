@@ -124,12 +124,7 @@
 	}
 
 	.pii-header-row {
-		display: flex !important;
-		align-items: center !important;
-		justify-content: space-between !important;
-		flex: 1 !important;
-		min-width: 0 !important;
-		gap: 16px !important;
+		display: contents !important;
 	}
 
 	.pii-meta-group {
@@ -138,6 +133,7 @@
 		gap: 12px !important;
 		min-width: 0 !important;
 		flex: 1 !important;
+		order: 1 !important;
 	}
 
 	/* pii-icon-container styles (Unmodified icon design) */
@@ -220,6 +216,7 @@
 		align-items: center !important;
 		gap: 12px !important;
 		flex-shrink: 0 !important;
+		order: 2 !important;
 	}
 
 	.pii-related-wrapper {
@@ -326,6 +323,7 @@
 
 	.pii-actions-zone {
 		flex-shrink: 0 !important;
+		order: 3 !important;
 	}
 
 	.pii-back-btn {
@@ -413,6 +411,14 @@
 			gap: 10px !important;
 		}
 
+		.pii-meta-group {
+			order: initial !important;
+		}
+
+		.pii-actions-zone {
+			order: initial !important;
+		}
+
 		#pii-title {
 			font-size: 14px !important;
 			white-space: normal !important;
@@ -426,6 +432,7 @@
 		}
 
 		.pii-sub-row {
+			order: initial !important;
 			width: 100% !important;
 			display: flex !important;
 			flex-direction: column !important;
@@ -470,6 +477,7 @@
 	let isPanelVisible = true;
 	let isDescExpanded = false;
 	let isDropdownOpen = false;
+	let isMouseOver = false;
 
 	const panel = document.getElementById('pageinfo-control-bar');
 	const triggerTab = document.getElementById('pageinfo-trigger-tab');
@@ -563,7 +571,11 @@
 		panel.classList.remove('is-hidden');
 		isPanelVisible = true;
 		triggerIcon.innerHTML = '<path d="m18 15-6-6-6 6"/>'; // Chevron up
-		resetTimer(HOVER_DELAY);
+		if (!isMouseOver) {
+			resetTimer(HOVER_DELAY);
+		} else {
+			clearTimeout(hideTimeout);
+		}
 	}
 
 	function togglePanel() {
@@ -576,7 +588,9 @@
 
 	function resetTimer(delay) {
 		clearTimeout(hideTimeout);
-		hideTimeout = setTimeout(hidePanel, delay);
+		if (!isMouseOver) {
+			hideTimeout = setTimeout(hidePanel, delay);
+		}
 	}
 
 	function toggleDropdown(e) {
@@ -610,13 +624,30 @@
 		}
 	}
 
+	function handleMouseEnter() {
+		isMouseOver = true;
+		clearTimeout(hideTimeout);
+	}
+
+	function handleMouseLeave(e) {
+		const nextTarget = e.relatedTarget;
+		// 若滑鼠移動目標仍為導航欄或相關資源下拉選單內部，則不啟動隱藏計數
+		if (nextTarget && (panel.contains(nextTarget) || relatedDropdown.contains(nextTarget))) {
+			return;
+		}
+		isMouseOver = false;
+		resetTimer(HOVER_DELAY);
+	}
+
 	// Event Listeners
 	descElem.addEventListener('click', toggleDescExpand);
 	relatedBtn.addEventListener('click', toggleDropdown);
 	triggerTab.addEventListener('click', (e) => { e.stopPropagation(); togglePanel(); });
 
-	panel.addEventListener('mouseenter', () => clearTimeout(hideTimeout));
-	panel.addEventListener('mouseleave', () => resetTimer(HOVER_DELAY));
+	panel.addEventListener('mouseenter', handleMouseEnter);
+	panel.addEventListener('mouseleave', handleMouseLeave);
+	relatedDropdown.addEventListener('mouseenter', handleMouseEnter);
+	relatedDropdown.addEventListener('mouseleave', handleMouseLeave);
 
 	document.addEventListener('click', function(event) {
 		if (!panel.contains(event.target)) {
