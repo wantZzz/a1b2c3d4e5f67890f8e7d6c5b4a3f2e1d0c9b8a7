@@ -39,194 +39,459 @@
 </script>
 
 <div id="pageinfo-control-bar">
-	<div class="pii-meta-zone">
-		<div id="pii-icon-container"></div>
-		<div class="pii-text-content">
-			<div class="pii-title-wrapper">
-				<span id="pii-title">載入中...</span>
+	<div class="pii-container">
+		<!-- Main Header Row (Title, Icon, Back Button) -->
+		<div class="pii-header-row">
+			<div class="pii-meta-group">
+				<div id="pii-icon-container"></div>
+				<div class="pii-text-content">
+					<h2 id="pii-title">載入中...</h2>
+					<p id="pii-desc" title="點擊切換完整說明展開/收折"></p>
+				</div>
 			</div>
-			<div id="pii-desc"></div>
+
+			<!-- Actions Zone (Back Button) -->
+			<div class="pii-actions-zone">
+				<button onclick="location.href='{{ page.dir | append: "/" | replace: "//", "/" | relative_url }}'" class="pii-back-btn">
+					<svg class="pii-btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+					<span>回到目錄</span>
+				</button>
+			</div>
+		</div>
+
+		<!-- Sub Row (Related Resources & Mobile Description) -->
+		<div class="pii-sub-row">
+			<div class="pii-related-wrapper">
+				<button id="pii-related-btn" class="pii-related-btn">
+					<svg class="pii-btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"/><polyline points="14 2 14 8 20 8"/></svg>
+					<span id="pii-related-label">相關資源</span>
+					<span id="pii-related-badge" class="pii-badge">0</span>
+					<svg class="pii-chevron-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m6 9 6 6 6-6"/></svg>
+				</button>
+
+				<!-- Related Resources Dropdown Menu -->
+				<div id="pii-related-dropdown" class="pii-dropdown-menu pii-hidden">
+					<div class="pii-dropdown-header">
+						<span>相關資源</span>
+						<span class="pii-dropdown-sub">點擊開啟檔案</span>
+					</div>
+					<div id="pii-related-list" class="pii-dropdown-list"></div>
+				</div>
+			</div>
+
+			<!-- Mobile Technical Description Box -->
+			<div id="pii-mobile-desc" class="pii-mobile-desc-box pii-hidden"></div>
 		</div>
 	</div>
 
-	<div class="pii-related-zone">
-		<div id="pii-related-links"></div>
-	</div>
-
-	<div class="pii-actions-zone">
-		<button onclick="history.back()" class="pii-back-btn">← 回上一頁</button>
+	<!-- Top-Right Attached Trigger Tab -->
+	<div id="pageinfo-trigger-tab" title="開關導航選單">
+		<svg id="pii-trigger-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="m18 15-6-6-6 6"/></svg>
 	</div>
 </div>
 
-<div id="pageinfo-trigger-zone"></div>
-
 <style>
-	/* ==========================================================================
-		 1. 預設樣式（桌面端電腦版：左資訊、中連結、右按鈕）
-		 ========================================================================== */
 	#pageinfo-control-bar {
 		position: fixed !important;
-		top: 0 !important; left: 0 !important;
-		width: 100% !important; height: 75px !important;
+		top: 0 !important;
+		left: 0 !important;
+		width: 100% !important;
 		background: #111827 !important;
 		border-bottom: 1px solid #1f2937 !important;
-		color: #fff !important;
+		color: #f3f4f6 !important;
 		z-index: 2147483647 !important;
-		display: flex !important; 
-		flex-direction: row !important;
-		align-items: center !important; 
-		justify-content: space-between !important;
-		padding: 0 24px !important; box-sizing: border-box !important;
-		font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif !important;
-		box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.5) !important;
+		font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif !important;
+		box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.5) !important;
 		transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1) !important;
 		transform: translateY(0);
 		pointer-events: auto !important;
+		box-sizing: border-box !important;
 	}
 
-	#pageinfo-control-bar.is-hidden { transform: translateY(-85px) !important; pointer-events: none !important; }
+	#pageinfo-control-bar.is-hidden {
+		transform: translateY(-100%) !important;
+	}
 
-	#pageinfo-trigger-zone {
-		position: fixed !important;
-		top: 0 !important; left: 0 !important;
-		width: 100% !important; height: 6px !important;
-		background: transparent !important;
-		z-index: 2147483646 !important;
+	.pii-container {
+		display: flex !important;
+		flex-direction: row !important;
+		align-items: center !important;
+		justify-content: space-between !important;
+		padding: 10px 24px !important;
+		gap: 16px !important;
+		width: 100% !important;
+		box-sizing: border-box !important;
+	}
+
+	.pii-header-row {
+		display: flex !important;
+		align-items: center !important;
+		justify-content: space-between !important;
+		flex: 1 !important;
+		min-width: 0 !important;
+		gap: 16px !important;
+	}
+
+	.pii-meta-group {
+		display: flex !important;
+		align-items: center !important;
+		gap: 12px !important;
+		min-width: 0 !important;
+		flex: 1 !important;
+	}
+
+	/* pii-icon-container styles (Unmodified icon design) */
+	#pii-icon-container {
+		display: flex !important;
+		align-items: center !important;
+		justify-content: center !important;
+		flex-shrink: 0 !important;
+	}
+	.item-icon-wrap {
+		width: 36px !important;
+		height: 36px !important;
+		border-radius: 12px !important;
+		display: flex !important;
+		align-items: center !important;
+		justify-content: center !important;
+		flex-shrink: 0 !important;
+	}
+	.item-icon-wrap.icon-primary {
+		background: #2563eb !important;
+		color: #ffffff !important;
+		box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3) !important;
+	}
+	.item-icon-wrap.icon-supplementary {
+		background: #16a34a !important;
+		color: #ffffff !important;
+		box-shadow: 0 4px 12px rgba(22, 163, 74, 0.3) !important;
+	}
+
+	.pii-text-content {
+		display: flex !important;
+		flex-direction: column !important;
+		gap: 2px !important;
+		min-width: 0 !important;
+		flex: 1 !important;
+	}
+
+	#pii-title {
+		font-size: 15px !important;
+		font-weight: 600 !important;
+		color: #f3f4f6 !important;
+		margin: 0 !important;
+		padding: 0 !important;
+		white-space: nowrap !important;
+		overflow: hidden !important;
+		text-overflow: ellipsis !important;
+		line-height: 1.3 !important;
+	}
+
+	#pii-desc {
+		font-size: 12px !important;
+		color: #9ca3af !important;
+		margin: 0 !important;
+		padding: 0 !important;
+		white-space: nowrap !important;
+		overflow: hidden !important;
+		text-overflow: ellipsis !important;
+		cursor: pointer !important;
+		transition: all 0.2s !important;
+	}
+
+	#pii-desc:hover {
+		color: #93c5fd !important;
+	}
+
+	#pii-desc.is-expanded {
+		white-space: normal !important;
+		word-break: break-word !important;
+		background: #030712 !important;
+		padding: 8px 12px !important;
+		border-radius: 8px !important;
+		border: 1px solid #1f2937 !important;
+		margin-top: 6px !important;
+		color: #e5e7eb !important;
+		line-height: 1.5 !important;
+	}
+
+	.pii-sub-row {
+		display: flex !important;
+		align-items: center !important;
+		gap: 12px !important;
+		flex-shrink: 0 !important;
+	}
+
+	.pii-related-wrapper {
+		position: relative !important;
+	}
+
+	.pii-related-btn {
+		background: #1f2937 !important;
+		border: 1px solid #374151 !important;
+		color: #e5e7eb !important;
+		border-radius: 12px !important;
+		padding: 6px 12px !important;
+		font-size: 12px !important;
+		display: inline-flex !important;
+		align-items: center !important;
+		gap: 6px !important;
+		cursor: pointer !important;
+		transition: all 0.2s !important;
+		white-space: nowrap !important;
+	}
+
+	.pii-related-btn:hover {
+		background: #374151 !important;
+		border-color: #4b5563 !important;
+	}
+
+	.pii-badge {
+		background: rgba(59, 130, 246, 0.2) !important;
+		color: #93c5fd !important;
+		border: 1px solid rgba(59, 130, 246, 0.3) !important;
+		font-size: 10px !important;
+		font-family: monospace !important;
+		padding: 1px 6px !important;
+		border-radius: 4px !important;
+		font-weight: 600 !important;
+	}
+
+	.pii-dropdown-menu {
+		position: absolute !important;
+		right: 0 !important;
+		top: 100% !important;
+		margin-top: 8px !important;
+		width: 280px !important;
+		background: #0f172a !important;
+		border: 1px solid #374151 !important;
+		border-radius: 12px !important;
+		box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.5) !important;
+		z-index: 2147483647 !important;
+		padding: 8px !important;
+		box-sizing: border-box !important;
+	}
+
+	.pii-dropdown-menu.pii-hidden {
+		display: none !important;
+	}
+
+	.pii-dropdown-header {
+		display: flex !important;
+		align-items: center !important;
+		justify-content: space-between !important;
+		padding: 4px 8px 8px 8px !important;
+		font-size: 10px !important;
+		text-transform: uppercase !important;
+		font-weight: 700 !important;
+		color: #9ca3af !important;
+		border-bottom: 1px solid #1f2937 !important;
+		margin-bottom: 6px !important;
+	}
+
+	.pii-dropdown-sub {
+		font-size: 10px !important;
+		color: #6b7280 !important;
+		text-transform: none !important;
+		font-weight: 400 !important;
+	}
+
+	.pii-dropdown-list {
+		display: flex !important;
+		flex-direction: column !important;
+		gap: 6px !important;
+	}
+
+	.pii-dropdown-item {
+		display: flex !important;
+		align-items: center !important;
+		gap: 8px !important;
+		padding: 8px 10px !important;
+		border-radius: 8px !important;
+		background: rgba(37, 99, 235, 0.15) !important;
+		border: 1px solid rgba(59, 130, 246, 0.3) !important;
+		color: #93c5fd !important;
+		text-decoration: none !important;
+		font-size: 12px !important;
+		font-family: monospace !important;
+		transition: background 0.15s !important;
+		white-space: nowrap !important;
+		overflow: hidden !important;
+		text-overflow: ellipsis !important;
+	}
+
+	.pii-dropdown-item:hover {
+		background: rgba(37, 99, 235, 0.3) !important;
+	}
+
+	.pii-actions-zone {
+		flex-shrink: 0 !important;
+	}
+
+	.pii-back-btn {
+		background: #1f2937 !important;
+		color: #e5e7eb !important;
+		border: 1px solid #374151 !important;
+		padding: 6px 12px !important;
+		border-radius: 12px !important;
+		cursor: pointer !important;
+		font-size: 12px !important;
+		font-weight: 500 !important;
+		display: inline-flex !important;
+		align-items: center !important;
+		gap: 6px !important;
+		transition: all 0.2s !important;
+		white-space: nowrap !important;
+	}
+
+	.pii-back-btn:hover {
+		background: #374151 !important;
+		color: #ffffff !important;
+	}
+
+	.pii-btn-icon {
+		width: 14px !important;
+		height: 14px !important;
+		color: #60a5fa !important;
+		flex-shrink: 0 !important;
+	}
+
+	.pii-chevron-icon {
+		width: 12px !important;
+		height: 12px !important;
+		color: #9ca3af !important;
+		flex-shrink: 0 !important;
+	}
+
+	#pageinfo-trigger-tab {
+		position: absolute !important;
+		right: 24px !important;
+		top: 100% !important;
+		width: 36px !important;
+		height: 32px !important;
+		background: #2563eb !important;
+		border-radius: 0 0 12px 12px !important;
+		display: flex !important;
+		align-items: center !important;
+		justify-content: center !important;
+		color: #ffffff !important;
+		cursor: pointer !important;
+		box-shadow: 0 4px 12px rgba(37, 99, 235, 0.4) !important;
+		transition: background 0.2s !important;
+		border-bottom: 1px solid rgba(147, 197, 253, 0.5) !important;
+		border-left: 1px solid rgba(147, 197, 253, 0.5) !important;
+		border-right: 1px solid rgba(147, 197, 253, 0.5) !important;
 		pointer-events: auto !important;
 	}
 
-	/* 左側：圖示與文字 */
-	.pii-meta-zone { display: flex !important; align-items: center !important; gap: 14px !important; max-width: 35% !important; order: 1 !important; }
-	.item-icon-wrap { width: 36px !important; height: 36px !important; border-radius: 6px !important; display: flex !important; align-items: center !important; justify-content: center !important; flex-shrink: 0 !important; }
-	.item-icon-wrap.icon-primary { background: #1e3a8a !important; color: #60a5fa !important; }
-	.item-icon-wrap.icon-supplementary { background: #14532d !important; color: #4ade80 !important; }
-	.pii-text-content { display: flex !important; flex-direction: column !important; gap: 4px !important; }
-	#pii-title { font-size: 16px !important; font-weight: 600 !important; color: #f3f4f6 !important; white-space: nowrap !important; overflow: hidden !important; text-overflow: ellipsis !important; }
-	#pii-desc { font-size: 13px !important; color: #9ca3af !important; white-space: nowrap !important; overflow: hidden !important; text-overflow: ellipsis !important; }
+	#pageinfo-trigger-tab:hover {
+		background: #3b82f6 !important;
+	}
 
-	/* 中間：相關連結 */
-	.pii-related-zone { max-width: 45% !important; display: flex !important; align-items: center !important; overflow: hidden !important; order: 2 !important; }
-	#pii-related-links { display: flex !important; flex-direction: row !important; gap: 12px !important; padding: 4px 0 !important; white-space: nowrap !important; }
-	.pii-link-item { color: #f3f4f6 !important; text-decoration: none !important; font-size: 13px !important; font-weight: 500 !important; display: inline-flex !important; align-items: center !important; gap: 8px !important; background: #1f2937 !important; border: 1px solid #374151 !important; padding: 6px 14px !important; border-radius: 20px !important; transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1) !important; white-space: nowrap !important; }
-	.pii-link-item:hover { background: #374151 !important; border-color: #4b5563 !important; transform: translateY(-1px) !important; }
-	.pii-doc-icon-svg { width: 14px !important; height: 14px !important; color: #9ca3af !important; flex-shrink: 0 !important; }
+	#pii-trigger-icon {
+		width: 16px !important;
+		height: 16px !important;
+	}
 
-	/* 右側：返回按鈕 */
-	.pii-actions-zone { order: 3 !important; }
-	.pii-back-btn { background: #1f2937 !important; color: #d1d5db !important; border: 1px solid #374151 !important; padding: 6px 14px !important; border-radius: 6px !important; cursor: pointer !important; font-size: 13px !important; transition: all 0.2s !important; white-space: nowrap !important; }
-	.pii-back-btn:hover { background: #374151 !important; color: #fff !important; }
+	.pii-mobile-desc-box {
+		display: none !important;
+	}
 
-	/* ==========================================================================
-		 2. RWD 移動端專屬響應式樣式 (螢幕寬度 768px 以下)
-		 ========================================================================== */
 	@media (max-width: 768px) {
-		#pageinfo-control-bar {
+		.pii-container {
 			flex-direction: column !important;
+			align-items: stretch !important;
+			padding: 12px 16px !important;
+			gap: 10px !important;
+		}
+
+		.pii-header-row {
+			width: 100% !important;
+			display: flex !important;
 			align-items: flex-start !important;
-			height: auto !important; 
-			padding: 14px 16px !important;
-			gap: 12px !important;
+			justify-content: space-between !important;
+			gap: 10px !important;
 		}
 
-		#pageinfo-control-bar.is-hidden {
-			transform: translateY(-180px) !important; 
+		#pii-title {
+			font-size: 14px !important;
+			white-space: normal !important;
+			word-break: break-word !important;
+			overflow: visible !important;
+			line-height: 1.4 !important;
 		}
 
-		#pageinfo-trigger-zone {
-			height: 50px !important;
-		}
-
-		.pii-actions-zone {
+		#pii-desc {
 			display: none !important;
 		}
 
-		.pii-meta-zone {
-			width: 100% !important;
-			max-width: 100% !important;
-			display: flex !important;
-			flex-direction: row !important;
-			align-items: flex-start !important;
-			gap: 12px !important;
-		}
-
-		.item-icon-wrap {
-			display: flex !important;
-			margin-top: 2px !important; 
-		}
-
-		.pii-text-content {
-			flex-grow: 1 !important;
-			min-width: 0 !important;
-		}
-
-		#pii-title { 
-			font-size: 15px !important; 
-			white-space: normal !important; 
-			overflow: visible !important;
-			text-overflow: clip !important;
-		}
-		#pii-desc { 
-			font-size: 12px !important; 
-			white-space: normal !important; 
-			overflow: visible !important;
-			text-overflow: clip !important;
-			margin-top: 2px !important;
-		}
-
-		.pii-related-zone {
-			width: 100% !important;
-			max-width: 100% !important;
-			overflow: hidden !important;
-		}
-
-		#pii-related-links {
+		.pii-sub-row {
 			width: 100% !important;
 			display: flex !important;
-			flex-direction: row !important;
-			white-space: nowrap !important; 
-			overflow-x: auto !important; 
-			-webkit-overflow-scrolling: touch !important; 
-			padding-bottom: 4px !important; 
+			flex-direction: column !important;
+			align-items: stretch !important;
+			gap: 8px !important;
+			border-top: 1px solid #1f2937 !important;
+			padding-top: 8px !important;
 		}
 
-		.pii-link-item { 
-			padding: 6px 12px !important; 
-			font-size: 12px !important; 
-			white-space: nowrap !important; 
-			flex-shrink: 0 !important; 
+		.pii-related-wrapper {
+			width: 100% !important;
+		}
+
+		.pii-related-btn {
+			width: auto !important;
+		}
+
+		.pii-dropdown-menu {
+			left: 0 !important;
+			right: auto !important;
+			width: 280px !important;
+		}
+
+		.pii-mobile-desc-box {
+			display: block !important;
+			font-size: 12px !important;
+			color: #d1d5db !important;
+			background: rgba(3, 7, 18, 0.5) !important;
+			padding: 8px 10px !important;
+			border-radius: 8px !important;
+			border: 1px solid #1f2937 !important;
+			word-break: break-word !important;
+			line-height: 1.4 !important;
 		}
 	}
 </style>
 
 <script>
 (function() {
-	const INITIAL_DELAY = 2000; 
-	const HOVER_DELAY = 3000;     
+	const HOVER_DELAY = 3000;
 	let hideTimeout;
 	let isPanelVisible = true;
-
-	const isMobile = /Mobi|Android|iPhone|iPad/i.test(navigator.userAgent);
+	let isDescExpanded = false;
+	let isDropdownOpen = false;
 
 	const panel = document.getElementById('pageinfo-control-bar');
-	const triggerZone = document.getElementById('pageinfo-trigger-zone');
+	const triggerTab = document.getElementById('pageinfo-trigger-tab');
+	const triggerIcon = document.getElementById('pii-trigger-icon');
+	const relatedBtn = document.getElementById('pii-related-btn');
+	const relatedDropdown = document.getElementById('pii-related-dropdown');
+	const descElem = document.getElementById('pii-desc');
 
 	const primarySvg = `
 		<div class="item-icon-wrap icon-primary">
-			<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:15px;height:15px;"><path d="M17 3a2 2 0 0 1 2 2v15a1 1 0 0 1-1.496.868l-4.512-2.578a2 2 0 0 0-1.984 0l-4.512 2.578A1 1 0 0 1 5 20V5a2 2 0 0 1 2-2z"></path></svg>
+			<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:16px;height:16px;"><path d="M17 3a2 2 0 0 1 2 2v15a1 1 0 0 1-1.496.868l-4.512-2.578a2 2 0 0 0-1.984 0l-4.512 2.578A1 1 0 0 1 5 20V5a2 2 0 0 1 2-2z"></path></svg>
 		</div>`;
 
 	const supplementarySvg = `
 		<div class="item-icon-wrap icon-supplementary">
-			<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:15px;height:15px;"><path d="M12 7v14"></path><path d="M3 18a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1h5a4 4 0 0 1 4 4 4 4 0 0 1 4-4h5a1 1 0 0 1 1 1v13a1 1 0 0 1-1 1h-6a3 3 0 0 0-3 3 3 3 0 0 0-3-3z"></path></svg>
+			<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:16px;height:16px;"><path d="M12 7v14"></path><path d="M3 18a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1h5a4 4 0 0 1 4 4 4 4 0 0 1 4-4h5a1 1 0 0 1 1 1v13a1 1 0 0 1-1 1h-6a3 3 0 0 0-3 3 3 3 0 0 0-3-3z"></path></svg>
 		</div>`;
 
 	const flatDocSvg = `
-		<svg class="pii-doc-icon-svg" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-			<path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"/>
-			<path d="M14 2v4a2 2 0 0 0 2 2h4"/>
-			<path d="M10 9H8"/>
-			<path d="M16 13H8"/>
-			<path d="M16 17H8"/>
+		<svg style="width:14px;height:14px;color:#60a5fa;flex-shrink:0;" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+			<path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"/>
+			<polyline points="14 2 14 8 20 8"/>
 		</svg>`;
 
 	function initPanelData() {
@@ -234,67 +499,134 @@
 			const iconContainer = document.getElementById('pii-icon-container');
 			iconContainer.innerHTML = window.pageData.role === 'supplementary' ? supplementarySvg : primarySvg;
 
-			const pageTitle = window.pageData.title.trim();
+			const pageTitle = window.pageData.title ? window.pageData.title.trim() : "";
 			document.getElementById('pii-title').textContent = pageTitle !== "" ? pageTitle : window.pageData.defaultName;
 
-			const pageDesc = window.pageData.description.trim();
-			document.getElementById('pii-desc').textContent = pageDesc !== "" ? pageDesc : "沒有描述";
-			
-			const relatedContainer = document.getElementById('pii-related-links');
+			const pageDesc = window.pageData.description ? window.pageData.description.trim() : "";
+			descElem.textContent = pageDesc !== "" ? pageDesc : "沒有描述";
+
+			const mobileDescElem = document.getElementById('pii-mobile-desc');
+			if (pageDesc !== "") {
+				mobileDescElem.textContent = pageDesc;
+			} else {
+				mobileDescElem.style.display = 'none';
+			}
+
+			const relatedList = document.getElementById('pii-related-list');
+			const relatedBadge = document.getElementById('pii-related-badge');
+			const relatedLabel = document.getElementById('pii-related-label');
+
 			if (window.pageData.related && window.pageData.related.length > 0) {
-				relatedContainer.innerHTML = '';
+				const count = window.pageData.related.length;
+				relatedBadge.textContent = count;
+				relatedList.innerHTML = '';
+
 				window.pageData.related.forEach(function(linkText) {
 					const a = document.createElement('a');
-					a.className = 'pii-link-item';
+					a.className = 'pii-dropdown-item';
 					a.href = linkText;
-					a.innerHTML = flatDocSvg + '<span>' + linkText + '</span>';
-					relatedContainer.appendChild(a);
+					a.innerHTML = flatDocSvg + '<span style="overflow:hidden;text-overflow:ellipsis;">' + escapeHtml(linkText) + '</span>';
+					relatedList.appendChild(a);
 				});
+
+				// Desktop default label logic
+				if (count === 1 && window.innerWidth > 768 && !isDescExpanded) {
+					relatedLabel.textContent = '相關資源: ' + window.pageData.related[0];
+				} else {
+					relatedLabel.textContent = '相關資源';
+				}
 			} else {
-				relatedContainer.innerHTML = '<span style="color:#4b5563; font-size:13px;">No related archives</span>';
+				relatedBadge.textContent = '0';
+				relatedList.innerHTML = '<span style="color:#6b7280; font-size:12px; padding:4px 8px;">無相關資源檔案</span>';
+				relatedLabel.textContent = '相關資源';
 			}
 		}
 	}
 
-	function hidePanel() { panel.classList.add('is-hidden'); isPanelVisible = false; }
-	function showPanel() { panel.classList.remove('is-hidden'); isPanelVisible = true; resetTimer(HOVER_DELAY); }
-	function resetTimer(delay) { clearTimeout(hideTimeout); hideTimeout = setTimeout(hidePanel, delay); }
-
-	if (isMobile) {
-		let lastTap = 0;
-		triggerZone.addEventListener('touchend', function(e) {
-			const currentTime = new Date().getTime();
-			const tapLength = currentTime - lastTap;
-			if (tapLength < 300 && tapLength > 0) {
-				showPanel();
-				e.preventDefault();
-			}
-			lastTap = currentTime;
-		});
-
-		panel.addEventListener('touchstart', () => clearTimeout(hideTimeout));
-		panel.addEventListener('touchend', () => resetTimer(HOVER_DELAY));
-
-	} else {
-		triggerZone.addEventListener('mouseenter', showPanel);
-		panel.addEventListener('mouseenter', () => clearTimeout(hideTimeout));
-		panel.addEventListener('mouseleave', () => resetTimer(HOVER_DELAY));
+	function escapeHtml(text) {
+		return String(text)
+			.replace(/&/g, "&amp;")
+			.replace(/</g, "&lt;")
+			.replace(/>/g, "&gt;")
+			.replace(/"/g, "&quot;")
+			.replace(/'/g, "&#039;");
 	}
 
-	const clickEvent = isMobile ? 'touchstart' : 'click';
-	document.addEventListener(clickEvent, function(event) {
+	function hidePanel() {
+		panel.classList.add('is-hidden');
+		isPanelVisible = false;
+		triggerIcon.innerHTML = '<path d="m6 9 6 6 6-6"/>'; // Chevron down
+		closeDropdown();
+	}
+
+	function showPanel() {
+		panel.classList.remove('is-hidden');
+		isPanelVisible = true;
+		triggerIcon.innerHTML = '<path d="m18 15-6-6-6 6"/>'; // Chevron up
+		resetTimer(HOVER_DELAY);
+	}
+
+	function togglePanel() {
 		if (isPanelVisible) {
-			const isClickInsidePanel = panel.contains(event.target);
-			const isClickInsideTrigger = triggerZone.contains(event.target);
-			if (!isClickInsidePanel && !isClickInsideTrigger) {
-				resetTimer(200); 
+			hidePanel();
+		} else {
+			showPanel();
+		}
+	}
+
+	function resetTimer(delay) {
+		clearTimeout(hideTimeout);
+		hideTimeout = setTimeout(hidePanel, delay);
+	}
+
+	function toggleDropdown(e) {
+		if (e) e.stopPropagation();
+		isDropdownOpen = !isDropdownOpen;
+		if (isDropdownOpen) {
+			relatedDropdown.classList.remove('pii-hidden');
+		} else {
+			relatedDropdown.classList.add('pii-hidden');
+		}
+	}
+
+	function closeDropdown() {
+		isDropdownOpen = false;
+		relatedDropdown.classList.add('pii-hidden');
+	}
+
+	function toggleDescExpand(e) {
+		if (e) e.stopPropagation();
+		isDescExpanded = !isDescExpanded;
+		const relatedLabel = document.getElementById('pii-related-label');
+
+		if (isDescExpanded) {
+			descElem.classList.add('is-expanded');
+			relatedLabel.textContent = '相關資源';
+		} else {
+			descElem.classList.remove('is-expanded');
+			if (window.pageData && window.pageData.related && window.pageData.related.length === 1 && window.innerWidth > 768) {
+				relatedLabel.textContent = '相關資源: ' + window.pageData.related[0];
 			}
+		}
+	}
+
+	// Event Listeners
+	descElem.addEventListener('click', toggleDescExpand);
+	relatedBtn.addEventListener('click', toggleDropdown);
+	triggerTab.addEventListener('click', (e) => { e.stopPropagation(); togglePanel(); });
+
+	panel.addEventListener('mouseenter', () => clearTimeout(hideTimeout));
+	panel.addEventListener('mouseleave', () => resetTimer(HOVER_DELAY));
+
+	document.addEventListener('click', function(event) {
+		if (!panel.contains(event.target)) {
+			closeDropdown();
 		}
 	});
 
 	document.addEventListener('DOMContentLoaded', function() {
 		initPanelData();
-		resetTimer(INITIAL_DELAY);
+		resetTimer(HOVER_DELAY);
 	});
 })();
 </script>
